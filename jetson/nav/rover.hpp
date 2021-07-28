@@ -6,7 +6,7 @@
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
-#include "rover_msgs/Course.hpp"
+#include "rover_msgs/Destinations.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/RepeaterDrop.hpp"
@@ -93,7 +93,7 @@ public:
             NavState navState,
             AutonState autonStateIn,
             Bearing bearingIn,
-            Course courseIn,
+            Destinations destinationsIn,
             Obstacle obstacleIn,
             Odometry odometryIn,
             Target targetIn,
@@ -105,7 +105,7 @@ public:
 
         AutonState& autonState();
 
-        Course& course();
+        Destinations& destinations();
 
         deque<Waypoint>& path();
 
@@ -130,12 +130,12 @@ public:
         // The rover's current auton state.
         AutonState mAutonState;
 
-        // The rover's overall course.
-        Course mCourse;
+        // The rover's overall destinations.
+        Destinations mCourse;
 
         // The rover's current path. The path is initially the same as
-        // the rover's course, however, as waypoints are visited, the
-        // are removed from the path but not the course.
+        // the rover's destinations, however, as waypoints are visited, the
+        // are removed from the path but not the destinations.
         deque<Waypoint> mPath;
 
         // The rover's current obstacle information from computer
@@ -154,7 +154,7 @@ public:
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
-        // Total targets to seach for in the course
+        // Total targets to seach for in the destinations
         unsigned mPathTargets;
     };
 

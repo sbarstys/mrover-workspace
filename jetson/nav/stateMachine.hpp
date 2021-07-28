@@ -29,7 +29,7 @@ public:
 
     void updateRoverStatus( Bearing bearing );
 
-    void updateRoverStatus( Course course );
+    void updateRoverStatus( Destinations destinations );
 
     void updateRoverStatus( Obstacle obstacle );
 
@@ -108,7 +108,7 @@ private:
     // Configuration file for the rover.
     rapidjson::Document mRoverConfig;
 
-    // Number of waypoints in course.
+    // Number of waypoints in destinations.
     unsigned mTotalWaypoints;
 
     // Number of waypoints completed.

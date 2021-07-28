@@ -31,7 +31,7 @@ static const char* xml_text = R"(
                 </Sequence>
             </Sequence>
         </ReactiveSequence>
-        
+
      </BehaviorTree>
 
  </root>
@@ -58,14 +58,14 @@ public:
         mStateMachine->updateRoverStatus( *autonState );
     }
 
-    // Sends the course lcm message to the state machine.
-    void course(
+    // Sends the Destinations lcm message to the state machine.
+    void destinations(
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
-        const Course* course
+        const Destinations* destinations
         )
     {
-        mStateMachine->updateRoverStatus( *course );
+        mStateMachine->updateRoverStatus( *destinations );
     }
 
     // Sends the obstacle lcm message to the state machine.
@@ -142,7 +142,7 @@ int main()
     using namespace TestNodes;
 
     fillDrinkTable();
-    
+
 
     factory.registerSimpleCondition("CheckOverallDrinkAvail", std::bind(CheckOverallDrinkAvail));
     factory.registerSimpleCondition("CheckMachineStatus", std::bind(CheckMachineStatus));
@@ -150,7 +150,7 @@ int main()
     factory.registerNodeType<Prompt>("Prompt");
     factory.registerNodeType<DispenseDrink>("DispenseDrink");
     factory.registerNodeType<CheckSpace>("CheckSpace");
-    
+
 
     // Trees are created at deployment-time (i.e. at run-time, but only once at the beginning).
     // The currently supported format is XML.
@@ -165,7 +165,7 @@ int main()
     while (status == BT::NodeStatus::SUCCESS){
         //lcm processing
         //map processing
-        status = tree.tickRoot();    
+        status = tree.tickRoot();
     }
 
 
@@ -186,7 +186,7 @@ int main()
     LcmHandlers lcmHandlers( &roverStateMachine );
 
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
-    lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
+    lcmObject.subscribe( "/destinations", &LcmHandlers::destinations, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
     lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );

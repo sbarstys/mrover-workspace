@@ -249,14 +249,14 @@ void StateMachine::updateRoverStatus( AutonState autonState )
     mNewRoverStatus.autonState() = autonState;
 } // updateRoverStatus( AutonState )
 
-// Updates the course of the rover's status if it has changed.
-void StateMachine::updateRoverStatus( Course course )
+// Updates the destinations of the rover's status if it has changed.
+void StateMachine::updateRoverStatus( Destinations destinations )
 {
-    if( mNewRoverStatus.course().hash != course.hash )
+    if( mNewRoverStatus.destinations().hash != destinations.hash )
     {
-        mNewRoverStatus.course() = course;
+        mNewRoverStatus.destinations() = destinations;
     }
-} // updateRoverStatus( Course )
+} // updateRoverStatus( Destinations )
 
 // Updates the obstacle information of the rover's status.
 void StateMachine::updateRoverStatus( Obstacle obstacle )
@@ -310,15 +310,15 @@ void StateMachine::publishNavState() const
 } // publishNavState()
 
 // Executes the logic for off. If the rover is turned on, it updates
-// the roverStatus. If the course is empty, the rover is done  with
-// the course otherwise it will turn to the first waypoing. Else the
+// the roverStatus. If the destinations is empty, the rover is done  with
+// the destinations otherwise it will turn to the first waypoing. Else the
 // rover is still off.
 NavState StateMachine::executeOff()
 {
     if( mRover->roverStatus().autonState().is_auton )
     {
         mCompletedWaypoints = 0;
-        mTotalWaypoints = mRover->roverStatus().course().num_waypoints;
+        mTotalWaypoints = mRover->roverStatus().destinations().num_waypoints;
 
         if( !mTotalWaypoints )
         {
@@ -376,7 +376,7 @@ NavState StateMachine::executeTurn()
 // proceeds to Off. If the rover finishes driving, it either starts
 // searching for a target (dependent the search parameter of
 // the Waypoint) or it turns to the next Waypoint. If the rover
-// detects an obstacle and is within the obstacle distance threshold, 
+// detects an obstacle and is within the obstacle distance threshold,
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
@@ -431,7 +431,7 @@ NavState StateMachine::executeDrive()
 } // executeDrive()
 
 // Executes the logic for waiting during a radio repeater drop
-// If the rover is done waiting, it continues the original course.
+// If the rover is done waiting, it continues the original destinations.
 // Else the rover keeps waiting.
 NavState StateMachine::executeRepeaterDropWait( )
 {
@@ -523,7 +523,7 @@ void StateMachine::addRepeaterDropPoint()
     // TODO: signal drops before first completed waypoint
     // Get last waypoint in path (where signal was good) and set search and gate
     // to false in order to not repeat search
-    Waypoint way = (mRover->roverStatus().course().waypoints)[mCompletedWaypoints-1];
+    Waypoint way = (mRover->roverStatus().destinations().waypoints)[mCompletedWaypoints-1];
     way.search = false;
     way.gate = false;
 

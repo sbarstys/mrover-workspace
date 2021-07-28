@@ -25,11 +25,11 @@ AutonState& Rover::RoverStatus::autonState()
     return mAutonState;
 } // autonState()
 
-// Gets a reference to the rover's course.
-Course& Rover::RoverStatus::course()
+// Gets a reference to the rover's destinations.
+Destinations& Rover::RoverStatus::destinations()
 {
-    return mCourse;
-} // course()
+    return mDestinations;
+} // destinations()
 
 // Gets a reference to the rover's path.
 deque<Waypoint>& Rover::RoverStatus::path()
@@ -73,16 +73,16 @@ unsigned Rover::RoverStatus::getPathTargets()
 Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverStatus )
 {
     mAutonState = newRoverStatus.autonState();
-    mCourse = newRoverStatus.course();
+    mDestinations = newRoverStatus.destinations();
     mPathTargets = 0;
 
     while( !mPath.empty() )
     {
         mPath.pop_front();
     }
-    for( int courseIndex = 0; courseIndex < mCourse.num_waypoints; ++courseIndex )
+    for( int destinationsIndex = 0; destinationsIndex < mDestinations.num_waypoints; ++destinationsIndex )
     {
-        auto &wp = mCourse.waypoints[ courseIndex ];
+        auto &wp = mDestinations.waypoints[ destinationsIndex ];
         mPath.push_back( wp );
         if (wp.search) {
             ++mPathTargets;
@@ -114,9 +114,9 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
 
 // Sends a joystick command to drive forward from the current odometry
 // to the destination odometry. This joystick command will also turn
-// the rover small amounts as "course corrections".
+// the rover small amounts as "destinations corrections".
 // The return value indicates if the rover has arrived or if it is
-// on-course or off-course.
+// on-destinations or off-destinations.
 DriveStatus Rover::drive( const Odometry& destination )
 {
     double distance = estimateNoneuclid( mRoverStatus.odometry(), destination );
@@ -127,11 +127,11 @@ DriveStatus Rover::drive( const Odometry& destination )
 // Sends a joystick command to drive forward from the current odometry
 // in the direction of bearing. The distance is used to determine how
 // quickly to drive forward. This joystick command will also turn the
-// rover small amounts as "course corrections". target indicates
+// rover small amounts as "destinations corrections". target indicates
 // if the rover is driving to a target rather than a waypoint and
 // determines which distance threshold to use.
 // The return value indicates if the rover has arrived or if it is
-// on-course or off-course.
+// on-destinations or off-destinations.
 DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
     if( (!target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
@@ -141,7 +141,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     }
 
     double destinationBearing = mod( bearing, 360 );
-    throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off course if inside if because through zero not calculated
+    throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off destinations if inside if because through zero not calculated
 
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {

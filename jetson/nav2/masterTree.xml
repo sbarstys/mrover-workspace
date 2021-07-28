@@ -1,0 +1,8 @@
+<root main_tree_to_execute = "MainTree" >
+    <BehaviorTree ID="MainTree">
+        <Fallback name="AutonStateSelector">
+            <AutonOff>
+            <AutonOn>
+        </Fallback>
+    </BehaviorTree>
+</root>

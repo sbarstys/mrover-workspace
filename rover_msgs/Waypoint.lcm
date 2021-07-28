@@ -6,4 +6,5 @@ struct Waypoint {
     float gate_width;
     int16_t id;
     Odometry odom;
+    string type;
 }
