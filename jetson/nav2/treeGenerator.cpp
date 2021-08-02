@@ -5,7 +5,7 @@ using std::ostringstream;
 
 
 void TreeGenerator::readXML(){
-    const std::string path = "masterTree.xml";
+    const std::string path = "vendingMachine.xml";
     ifstream input_file(path);
     if (!input_file.is_open()){
         std::cout << "you're code sucks" << std::endl;
