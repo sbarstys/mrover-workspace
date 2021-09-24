@@ -3,6 +3,9 @@
 #include <fstream>
 #include <sstream>
 #include "nodes/vendingMachineNodes.hpp"
+#include "nodes/gateNodes.hpp"
+#include "nodes/searchNodes.hpp"
+#include "nodes/utilityNodes.hpp"
 
 class TreeGenerator {
     private:
