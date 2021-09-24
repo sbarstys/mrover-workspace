@@ -17,6 +17,9 @@ void TreeGenerator::readXML(){
 
 void TreeGenerator::registerNodes(){
     //TODO: regiser nodes (for actual tree)
+    utilNodes::registerNodes(factory);
+    gateNodes::registerNodes(factory);
+    searchNodes::registerNodes(factory);
 
 
     //vending machine registration TODO: delete this and replace with real tree
