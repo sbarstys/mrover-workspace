@@ -7,7 +7,17 @@ namespace searchNodes{
         }
         return BT::NodeStatus::FAILURE;
     }
+
+    BT::NodeStatus isTargetApproachPoint(){
+        if (gRover->roverStatus().course().peekTop().type == "targetApproach"){
+            return BT::NodeStatus::SUCCESS;
+        }
+        return BT::NodeStatus::FAILURE;
+    }
+
+
     void registerNodes(BT::BehaviorTreeFactory& factory){
-         factory.registerSimpleAction("isSearhPoint", std::bind(isSearchPoint));
+         factory.registerSimpleCondition("isSearhPoint", std::bind(isSearchPoint));
+         actory.registerSimpleCondition("isTargetApproachPoint", std::bind(isSearchPoint));
     }
 }
