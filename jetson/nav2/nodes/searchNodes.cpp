@@ -18,6 +18,6 @@ namespace searchNodes{
 
     void registerNodes(BT::BehaviorTreeFactory& factory){
          factory.registerSimpleCondition("isSearhPoint", std::bind(isSearchPoint));
-         actory.registerSimpleCondition("isTargetApproachPoint", std::bind(isSearchPoint));
+         factory.registerSimpleCondition("isTargetApproachPoint", std::bind(isSearchPoint));
     }
 }
