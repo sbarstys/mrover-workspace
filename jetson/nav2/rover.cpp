@@ -43,6 +43,10 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
+bool Rover::RoverStatus::firstGatePostFound() {
+    return mFirstGatePostFound;
+}
+
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 }
