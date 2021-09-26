@@ -21,6 +21,12 @@ Destinations& Rover::RoverStatus::destinations()
 } // destinations()
 
 
+//Gets a reference to the rovers Course
+Course& Rover::RoverStatus::course(){
+    return mCourse;
+}
+
+
 // Gets a reference to the rover's current odometry information.
 Odometry& Rover::RoverStatus::odometry()
 {
