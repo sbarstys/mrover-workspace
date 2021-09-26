@@ -29,3 +29,7 @@ void Course::clearAllOfType(std::string waypointType){
         }
     }
 }
+
+Waypoint& Course::peekTop(){
+    return this->waypoints[0];
+}

@@ -12,6 +12,7 @@
 #include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
+#include "course.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 
@@ -51,6 +52,8 @@ public:
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
+        Course& course();
+
     private:
         // The rover's overall course.
         Destinations mDestinations;
@@ -66,6 +69,8 @@ public:
 
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
+
+        Course mCourse;
 
     };
 
@@ -136,5 +141,7 @@ private:
     // on the rover's current latitude.
     double mLongMeterInMinutes;
 };
+
+Rover* gRover;
 
 #endif // ROVER_HPP

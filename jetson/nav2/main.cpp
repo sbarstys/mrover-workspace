@@ -96,11 +96,12 @@ private:
 };
 
 
+
 // Runs the autonomous navigation of the rover.
 int main()
 {
     //TODO: get the rover object from a seperate function (uses rover config)
-    Rover* rover = new Rover();
+    gRover = new Rover();
 
     //initialize lcms
     lcm::LCM lcmObject;

@@ -25,6 +25,8 @@ class Course {
 
     void clearAllOfType(std::string waypointType);
 
+    Waypoint& peekTop();
+
     private:
 
     std::deque<Waypoint> waypoints;
