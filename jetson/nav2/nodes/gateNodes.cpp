@@ -1,7 +1,7 @@
 #include "gateNodes.hpp"
 #include "rover.hpp"
 
-namespace VendingMachineNodes{
+namespace gateNodes{
 
     // TODO: not done
     BT::NodeStatus isFirstGatePostLocKnown(){
