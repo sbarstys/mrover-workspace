@@ -6,6 +6,7 @@ namespace searchNodes{
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
+        
     }
 
     BT::NodeStatus isTargetApproachPoint(){
@@ -15,9 +16,25 @@ namespace searchNodes{
         return BT::NodeStatus::FAILURE;
     }
 
+    BT::NodeStatus hasTarget(){
+        
+    }
 
+    BT::NodeStatus populateFirstTarget() {
+
+    }
+
+    BT::NodeStatus populateSecondTarget() {
+
+    }
+
+    
     void registerNodes(BT::BehaviorTreeFactory& factory){
-         factory.registerSimpleCondition("isSearhPoint", std::bind(isSearchPoint));
-         factory.registerSimpleCondition("isTargetApproachPoint", std::bind(isSearchPoint));
+        factory.registerSimpleCondition("isSearchPoint", std::bind(isSearchPoint));
+        factory.registerSimpleCondition("isTargetApproachPoint", std::bind(isTargetApproachPoint));
+        factory.registerSimpleCondition("hasTarget", std::bind(hasTarget));
+        factory.registerSimpleCondition("populateFirstTarget", std::bind(populateFirstTarget));
+        factory.registerSimpleCondition("populateSecondTarget", std::bind(populateSecondTarget));
+
     }
 }
