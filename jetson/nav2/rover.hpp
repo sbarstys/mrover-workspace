@@ -48,6 +48,8 @@ public:
 
         Target& target2();
 
+        bool firstGatePostFound();
+
         RadioSignalStrength& radio();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
@@ -71,6 +73,9 @@ public:
         RadioSignalStrength mSignal;
 
         Course mCourse;
+
+        // first gate post found
+        bool mFirstGatePostFound = false;
 
     };
 
