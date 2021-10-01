@@ -29,6 +29,11 @@ public:
     class RoverStatus
     {
     public:
+        struct PostLocation{
+            Odometry location;
+            int32_t id;
+        };
+        
         RoverStatus();
 
         RoverStatus(
@@ -56,6 +61,10 @@ public:
 
         Course& course();
 
+        PostLocation post1();
+
+        PostLocation post2();
+
     private:
         // The rover's overall course.
         Destinations mDestinations;
@@ -76,6 +85,10 @@ public:
 
         // first gate post found
         bool mFirstGatePostFound = false;
+
+        //post locations
+        PostLocation post1;
+        PostLocation post2;
 
     };
 
