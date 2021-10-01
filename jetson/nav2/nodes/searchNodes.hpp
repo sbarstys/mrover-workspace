@@ -18,6 +18,8 @@ namespace searchNodes {
     // 
     BT::NodeStatus populateSecondTarget();
 
+    BT::NodeStatus putTargetAtFrontOfCourse();
+
     void registerNodes(BT::BehaviorTreeFactory& factory);
     
 }
