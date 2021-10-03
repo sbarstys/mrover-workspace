@@ -3,10 +3,10 @@
 #include "rover.hpp"
 
 namespace searchNodes {
-    // Check if the top of the course a search point
+    // Check if the top of the course is a search point
     BT::NodeStatus isSearchPoint();
 
-    // Check if the top of the course a target approach point
+    // Check if the top of the course is a target approach point
     BT::NodeStatus isTargetApproachPoint();
 
     // Check if we see a target
