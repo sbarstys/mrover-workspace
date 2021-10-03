@@ -49,6 +49,13 @@ namespace searchNodes{
         return BT::NodeStatus::SUCCESS;
     }
 
+    BT::NodeStatus generateSearchPoints(){
+        /*
+        TODO fill this in lol
+        */
+        return BT::NodeStatus::SUCCESS;
+    }
+
     
     void registerNodes(BT::BehaviorTreeFactory& factory){
         factory.registerSimpleCondition("isSearchPoint", std::bind(isSearchPoint));
