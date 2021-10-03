@@ -3,21 +3,22 @@
 #include "rover.hpp"
 
 namespace searchNodes {
-    // is the top of the course a search point?
+    // Check if the top of the course a search point
     BT::NodeStatus isSearchPoint();
 
-    // do we see a target?
-    BT::NodeStatus hasTarget();
-
-    // is the top of the course a target approach point?
+    // Check if the top of the course a target approach point
     BT::NodeStatus isTargetApproachPoint();
 
-    // 
+    // Check if we see a target
+    BT::NodeStatus hasTarget();
+
+    // Populate post1 with first target information
     BT::NodeStatus populateFirstTarget();
 
-    // 
+    // Populate post2 with second target information
     BT::NodeStatus populateSecondTarget();
 
+    // Put target at front of course
     BT::NodeStatus putTargetAtFrontOfCourse();
 
     void registerNodes(BT::BehaviorTreeFactory& factory);
