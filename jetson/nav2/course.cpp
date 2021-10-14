@@ -21,6 +21,7 @@ void Course::popBack(){
     this->waypoints.pop_back();
 }
 
+//Comment
 void Course::clearAllOfType(std::string waypointType){
     // delete waypoints of type waypointType starting from end
     for (auto it = this->waypoints.end(); it != this->waypoints.begin(); --it){
