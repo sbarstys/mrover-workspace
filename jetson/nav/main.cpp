@@ -101,9 +101,12 @@ int main()
         return 1;
     }
 
+    //Creates the statemachine object, will create the other statemachines and rover object within the constructor
     StateMachine roverStateMachine( lcmObject );
+    //Creates the lcm handler object
     LcmHandlers lcmHandlers( &roverStateMachine );
 
+    //Setup for handling lcm communication/data.  Subscribes to the channels for lcm communications
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
     lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
@@ -112,6 +115,8 @@ int main()
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
+    //Main loop.  Will continue executing until there is no more lcm data to handle?
+    //Calls the run function which will run the main state machine
     while( lcmObject.handle() == 0 )
     {
         roverStateMachine.run();

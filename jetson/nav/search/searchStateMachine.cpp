@@ -341,6 +341,7 @@ void SearchStateMachine::insertIntermediatePoints()
 // an ease of transition between search algorithms
 SearchStateMachine* SearchFactory( StateMachine* stateMachine, SearchType type, Rover* rover, const rapidjson::Document& roverConfig )  //TODO
 {
+    //creates a search object.  Basically converts the search type into an object that is returned
     SearchStateMachine* search = nullptr;
     switch (type)
     {

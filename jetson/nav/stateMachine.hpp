@@ -13,6 +13,7 @@ using namespace rover_msgs;
 
 // This class implements the logic for the state machine for the
 // autonomous navigation of the rover.
+//Below is the class declaration
 class StateMachine
 {
 public:
@@ -23,6 +24,7 @@ public:
 
     ~StateMachine();
 
+    //Declares the functions to be implemented in StateMachine.cpp
     void run( );
 
     void updateRoverStatus( AutonState autonState );

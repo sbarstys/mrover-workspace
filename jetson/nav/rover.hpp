@@ -89,6 +89,7 @@ public:
     public:
         RoverStatus();
 
+        //In parentheses the variables held by the RoverStatus object
         RoverStatus(
             NavState navState,
             AutonState autonStateIn,

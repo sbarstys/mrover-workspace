@@ -49,7 +49,7 @@ Odometry& Rover::RoverStatus::odometry()
     return mOdometry;
 } // odometry()
 
-// Gets a reference to the rover's first target's current information.
+// Gets a reference to the rover's first target's current information. Target is a post
 Target& Rover::RoverStatus::target()
 {
     return mTarget1;
@@ -59,10 +59,12 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
+//Returns the signal strength to the base station
 RadioSignalStrength& Rover::RoverStatus::radio() {
-    return mSignal;
+    return mSignal; 
 }
 
+//Gets the number of targets in the course
 unsigned Rover::RoverStatus::getPathTargets()
 {
   return mPathTargets;
@@ -76,10 +78,12 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
     mCourse = newRoverStatus.course();
     mPathTargets = 0;
 
+    //While the path is not empty remove all of the waypoints from the path?
     while( !mPath.empty() )
     {
         mPath.pop_front();
     }
+    //Adds waypoints to the path list
     for( int courseIndex = 0; courseIndex < mCourse.num_waypoints; ++courseIndex )
     {
         auto &wp = mCourse.waypoints[ courseIndex ];
@@ -88,6 +92,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
             ++mPathTargets;
         }
     }
+    //Updates the obstacles, odometry, targets, and base signal strength based on the the new rover status
     mObstacle = newRoverStatus.obstacle();
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.target();
@@ -117,11 +122,13 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
 // the rover small amounts as "course corrections".
 // The return value indicates if the rover has arrived or if it is
 // on-course or off-course.
-DriveStatus Rover::drive( const Odometry& destination )
+DriveStatus Rover::drive( const Odometry& destination ) //This function is called by the mrover object at line (430 in statemachine.cpp)
 {
+    //Calculate the distance and bearing given odometry of the destination and the current 
+    //odometry of the rover.
     double distance = estimateNoneuclid( mRoverStatus.odometry(), destination );
     double bearing = calcBearing( mRoverStatus.odometry(), destination );
-    return drive( distance, bearing, false );
+    return drive( distance, bearing, false ); // Calls the drive function below
 } // drive()
 
 // Sends a joystick command to drive forward from the current odometry
@@ -134,23 +141,27 @@ DriveStatus Rover::drive( const Odometry& destination )
 // on-course or off-course.
 DriveStatus Rover::drive( const double distance, const double bearing, const bool target )
 {
+    // if the rover is not driving to the target and the distance is within the rover distance threshold
+    // or if the rover is driving to the target and the distance is within the rover distance threshold
     if( (!target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()) ||
         (target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble()) )
     {
-        return DriveStatus::Arrived;
+        return DriveStatus::Arrived; //If either conditions are met, the drive status is arrived
     }
 
     double destinationBearing = mod( bearing, 360 );
     throughZero( destinationBearing, mRoverStatus.odometry().bearing_deg ); // will go off course if inside if because through zero not calculated
 
+    //If the bearing of the destination and rover's current odometry is within the threshold, perform course correction 
     if( fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) < mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() )
     {
+        //Course corrections
         double distanceEffort = mDistancePid.update( -1 * distance, 0 );
         double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, destinationBearing );
         publishJoystick( distanceEffort, turningEffort, false );
         return DriveStatus::OnCourse;
     }
-    cerr << "offcourse\n";
+    cerr << "offcourse\n"; //Writes "offcourse\n" to the configuration file
     return DriveStatus::OffCourse;
 } // drive()
 
@@ -185,15 +196,15 @@ bool Rover::turn( double bearing )
     bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
     double turningBearingThreshold;
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) )
+    if( isTurningAroundObstacle( mRoverStatus.currentState() ) ) // If the rover is in the NavState to turn around an obstacle
     {
         turningBearingThreshold = 0;
     }
-    else
+    else //If the rover is not in the state to turn around an obstacle
     {
-        turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble();
+        turningBearingThreshold = mRoverConfig[ "navThresholds" ][ "turningBearing" ].GetDouble(); //Information stored in config file
     }
-    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) <= turningBearingThreshold )
+    if( fabs( bearing - mRoverStatus.odometry().bearing_deg ) <= turningBearingThreshold ) //If the rover has finished turning
     {
         return true;
     }
@@ -203,7 +214,7 @@ bool Rover::turn( double bearing )
     {
         turningEffort = minTurningEffort;
     }
-    publishJoystick( 0, turningEffort, false );
+    publishJoystick( 0, turningEffort, false ); //publishes a joystick command stating that rover is still turning
     return false;
 } // turn()
 
@@ -220,22 +231,23 @@ void Rover::stop()
 // we got rid of NavStates TurnToTarget and DriveToTarget (oops) fix this soon :P
 bool Rover::updateRover( RoverStatus newRoverStatus )
 {
-    // Rover currently on.
+    // If the Rover is currently on.
     if( mRoverStatus.autonState().is_auton )
     {
-        // Rover turned off
+        //If the new rover status is off
         if( !newRoverStatus.autonState().is_auton )
         {
-            mRoverStatus.autonState() = newRoverStatus.autonState();
+            mRoverStatus.autonState() = newRoverStatus.autonState(); //Changes the rover's current auton state to off
             return true;
         }
 
-        // If any data has changed, update all data
-        if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
-            !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
-            !isEqual( mRoverStatus.target(), newRoverStatus.target()) ||
-            !isEqual( mRoverStatus.target2(), newRoverStatus.target2()) )
+        // If any data has changed, update all data, i.e. the newRoverStatus data does not equal the current Rover status data
+        if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) || //if obstacle data is not equal
+            !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) || //if the odometry data is not equal
+            !isEqual( mRoverStatus.target(), newRoverStatus.target()) || //if the first target data is not equal (i.e. distance and bearing)
+            !isEqual( mRoverStatus.target2(), newRoverStatus.target2()) ) // if the second target data is not equal (i.e. distance and bearing)
         {
+            //Updates the current respective data with that of the newRoverStatus.
             mRoverStatus.obstacle() = newRoverStatus.obstacle();
             mRoverStatus.odometry() = newRoverStatus.odometry();
             mRoverStatus.target() = newRoverStatus.target();
@@ -250,11 +262,11 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
     // Rover currently off.
     else
     {
-        // Rover turned on.
+        //If the rover auton state is currently off and the new auton state is on, turn the current Rover auton state to on.
         if( newRoverStatus.autonState().is_auton )
         {
             mRoverStatus = newRoverStatus;
-            // Calculate longitude minutes/meter conversion.
+            // Calculate longitude minutes/meter conversion and update the current rover status odometry information
             mLongMeterInMinutes = 60 / ( EARTH_CIRCUM * cos( degreeToRadian(
                 mRoverStatus.odometry().latitude_deg, mRoverStatus.odometry().latitude_min ) ) / 360 );
             return true;
@@ -286,12 +298,13 @@ void Rover::updateRepeater(RadioSignalStrength& radioSignal)
         radioSignal.signal_strength <=
         mRoverConfig[ "radioRepeaterThresholds" ][ "signalStrengthCutOff" ].GetDouble())
     {
-        startTime = time( nullptr );
+        startTime = time( nullptr ); //Starts the timer at the current time
         started = true;
     }
 
-    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble();
-    if( started && difftime( time( nullptr ), startTime ) > waitTime )
+    double waitTime = mRoverConfig[ "radioRepeaterThresholds" ][ "lowSignalWaitTime" ].GetDouble(); //Gets the wait time from the config file
+    if( started && difftime( time( nullptr ), startTime ) > waitTime )//if the timer has started and the difference in the current time 
+                                                                        //and the start time is greater than the wait time.
     {
         started = false;
         mTimeToDropRepeater = true;
@@ -339,7 +352,7 @@ void Rover::publishJoystick( const double forwardBack, const double leftRight, c
 } // publishJoystick()
 
 // Returns true if the two obstacle messages are equal, false
-// otherwise.
+// otherwise.  Based on the distances to the obstacles.
 bool Rover::isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const
 {
     if( obstacle1.distance == obstacle2.distance &&
