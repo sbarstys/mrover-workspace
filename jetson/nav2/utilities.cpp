@@ -54,6 +54,20 @@ Odometry createOdom( const Odometry & referencePoint, double bearing, const doub
     return newOdom;
 }
 
+// create a new Odometry point at a bearing and distance from a given odometry point
+// regardless of rover, (based on the referencePoint completely)
+Odometry createOdom( const Odometry & referencePoint, double bearing)
+{
+    // TODO: lowkey no idea how this work
+    double longMeterInMinutes = 60 / ( EARTH_CIRCUM * cos( degreeToRadian(
+        referencePoint.latitude_deg, referencePoint.latitude_min ) ) / 360 );
+    bearing = degreeToRadian( bearing );
+    double latChange = distance * cos( bearing ) * LAT_METER_IN_MINUTES;
+    double lonChange = distance * sin( bearing  ) * longMeterInMinutes;
+    Odometry newOdom = addMinToDegrees( referencePoint, latChange, lonChange );
+    return newOdom;
+}
+
 // Caclulates the bearing between the current odometry and the
 // destination odometry.
 double calcBearing( const Odometry& start, const Odometry& dest )
