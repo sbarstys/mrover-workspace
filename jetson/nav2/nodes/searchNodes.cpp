@@ -49,6 +49,15 @@ namespace searchNodes{
         return BT::NodeStatus::SUCCESS;
     }
 
+    BT::NodeStatus generateSearchPoints(){
+        /*
+        at the end of this function the Course will be filled with waypoints centered at the rovers current location describing a search pattern
+        The first pattern is the spiral out, then the lawnmower, then spiral in 
+        */
+       
+        return BT::NodeStatus::SUCCESS;
+    }
+
     
     void registerNodes(BT::BehaviorTreeFactory& factory){
         factory.registerSimpleCondition("isSearchPoint", std::bind(isSearchPoint));

@@ -22,5 +22,7 @@ namespace searchNodes {
     BT::NodeStatus putTargetAtFrontOfCourse();
 
     void registerNodes(BT::BehaviorTreeFactory& factory);
+
+    BT::NodeStatus generateSearchPoints();
     
 }
