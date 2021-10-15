@@ -1,13 +1,7 @@
 #include <deque>
-#include "rover_msgs/Waypoint.lcm"
+#include <utility>
+#include "waypoint.hpp"
 #include "string"
-
-namespace WaypointTypes{
-    const std::string SEARCH;
-    const std::string DESTINATION;
-    const std::string GATE_TRAVERSAL;
-}
-
 
 // TEST COMMENT
 class Course {
@@ -23,12 +17,29 @@ class Course {
 
     void popBack();
 
-    void clearAllOfType(std::string waypointType);
+    void clearAllOfType(WaypointType waypointType);
 
     Waypoint& peekTop();
 
     private:
 
-    std::deque<Waypoint> waypoints;
+    void calculateEnds();
 
+    std::deque<std::pair<int, Waypoint>> &getDeque(WaypointType);
+
+    std::deque<std::pair<int, Waypoint>> &getFrontDeque();
+
+    std::deque<std::pair<int, Waypoint>> &getLastDeque();
+
+    int first;
+
+    int last;
+
+    std::deque<std::pair<int, Waypoint>> waypointsSearch;
+
+    std::deque<std::pair<int, Waypoint>> waypointsGateTraversal;
+
+    std::deque<std::pair<int, Waypoint>> waypointsDestination;
+
+    std::deque<std::pair<int, Waypoint>> waypointsTargetApproach;
 };

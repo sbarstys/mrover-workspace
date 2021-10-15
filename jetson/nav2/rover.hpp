@@ -11,7 +11,7 @@
 #include "rover_msgs/RepeaterDrop.hpp"
 #include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
-#include "rover_msgs/Waypoint.hpp"
+#include "waypoint.hpp"
 #include "course.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
