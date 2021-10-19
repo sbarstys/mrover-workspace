@@ -4,4 +4,4 @@
 #include "rover_msgs/Odometry.lcm"
 #include "rover.hpp"
 
-void generateSpiralOutPattern();
+void generateLawnmowerSearchPattern();

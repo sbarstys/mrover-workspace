@@ -54,7 +54,8 @@ namespace searchNodes{
         at the end of this function the Course will be filled with waypoints centered at the rovers current location describing a search pattern
         The first pattern is the spiral out, then the lawnmower, then spiral in 
         */
-       
+        generateSpiralOutPattern();
+        generatelawnmowerPattern();
         return BT::NodeStatus::SUCCESS;
     }
 
