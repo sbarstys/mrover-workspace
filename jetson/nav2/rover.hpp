@@ -15,6 +15,7 @@
 #include "course.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
+#include "gimbal.hpp"
 
 using namespace rover_msgs;
 using namespace std;
@@ -33,7 +34,7 @@ public:
             Odometry location;
             int32_t id;
         };
-        
+
         RoverStatus();
 
         RoverStatus(
@@ -120,6 +121,12 @@ public:
 
     bool isTimeToDropRepeater();
 
+    Gimbal& gimbal();
+
+    void publishGimbal();
+
+    bool sendGimbalSetpoint(double desired_yaw);
+
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -158,6 +165,9 @@ private:
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
+
+    // Gimbal object.
+    Gimbal mGimbal;
 };
 
 Rover* gRover;
