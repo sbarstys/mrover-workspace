@@ -55,7 +55,8 @@ namespace searchNodes{
         The first pattern is the spiral out, then the lawnmower, then spiral in 
         */
         generateSpiralOutPattern();
-        generatelawnmowerPattern();
+        generateLawnmowerPattern();
+        generateSpiralInPattern();
         return BT::NodeStatus::SUCCESS;
     }
 
