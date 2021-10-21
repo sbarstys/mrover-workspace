@@ -85,6 +85,7 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
 {
 } // Rover()
 
@@ -296,6 +297,24 @@ PidLoop& Rover::bearingPid()
 {
     return mBearingPid;
 } // bearingPid()
+
+// Gets the rover's gimbal object
+Gimbal& Rover::gimbal()
+{
+    return mGimbal;
+}
+
+// tells the gimbal to go to its requested location, DEPRECATED
+void Rover::publishGimbal(){
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+}
+
+// sends the gimbal a desired yaw setpoint, gimbal publishes command
+bool Rover::sendGimbalSetpoint(double desired_yaw){
+    bool r = mGimbal.setDesiredGimbalYaw(desired_yaw);
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+    return r;
+}
 
 // Publishes a joystick command with the given forwardBack and
 // leftRight efforts.
