@@ -2,7 +2,8 @@
 #include <lcm/lcm-cpp.hpp>
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "rover.hpp"
-#include "treeGenerator.hpp";
+#include "rover_msgs/Obstacle.hpp"
+#include "treeGenerator.hpp"
 using namespace rover_msgs;
 using namespace std;
 using namespace BT;

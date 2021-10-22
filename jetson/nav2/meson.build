@@ -7,7 +7,21 @@ nodes = include_directories('nodes')
 follower = include_directories('followers')
 planner = include_directories('planners')
 
-executable('jetson_nav', 'main.cpp', 'course.cpp', 'treeGenerator.cpp', 'followers/pathFollowerBase.cpp',
+executable('jetson_nav', 'main.cpp', 'treeGenerator.cpp', 'followers/pathFollowerBase.cpp',
+            'nodes/gateNodes.cpp',
+            'nodes/searchNodes.cpp',
+            'nodes/utilityNodes.cpp',
+            'nodes/vendingMachineNodes.cpp',
+            'planners/simplePathPlanner.cpp',
+            'planners/pathPlannerBase.hpp',
+            'searchPatterns/lawnmower.cpp',
+            'searchPatterns/spiralIn.cpp',
+            'searchPatterns/spiralOut.cpp',
+            'gimbal.cpp',
+            'path.cpp',
+            'pid.cpp',
+            'rover.cpp',
+            'utilities.cpp',
             'followers/simplePathFollower.cpp',
             'src/blackboard.cpp',
             'src/behavior_tree.cpp',

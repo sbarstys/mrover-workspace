@@ -48,11 +48,11 @@ bool Rover::RoverStatus::firstGatePostFound() {
 }
 
 PostLocation Rover::RoverStatus::post1(){
-    return post1;
+    return mPost1;
 }
 
 PostLocation Rover::RoverStatus::post2(){
-    return post2;
+    return mPost2;
 }
 
 RadioSignalStrength& Rover::RoverStatus::radio() {
