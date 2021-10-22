@@ -31,13 +31,13 @@ public:
     }
 
     // Sends the course lcm message to the state machine.
-    void course(
+    void destinations(
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
-        const Course* course
+        const Destinations* destinations
         )
     {
-        mStatus->updateRoverStatus( *course );
+        mStatus->updateRoverStatus( *destinations );
     }
 
     // Sends the obstacle lcm message to the state machine.

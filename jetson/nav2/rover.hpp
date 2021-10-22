@@ -39,7 +39,7 @@ public:
 
         RoverStatus(
             Bearing bearingIn,
-            Course courseIn,
+            Destinations destinationsIn,
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
@@ -60,14 +60,14 @@ public:
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
-        Course& course();
+        deque<Waypoint>& course();
 
         PostLocation post1();
 
         PostLocation post2();
 
     private:
-        // The rover's overall course.
+        // The rover's overall macro destinations, made only of destination waypoints
         Destinations mDestinations;
 
         // The rover's current odometry information.
@@ -82,7 +82,8 @@ public:
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
-        Course mCourse;
+        // internal course including search and gate waypoints
+        deque<Waypoint> mCourse;
 
         // first gate post found
         bool mFirstGatePostFound = false;
