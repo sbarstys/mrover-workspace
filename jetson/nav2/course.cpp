@@ -22,7 +22,7 @@ deque<pair<int, Waypoint>> &Course::getDeque(WaypointType type) {
             return waypointsTargetApproach;
     }
 }
-
+//Determine the values of the first and last ID of the deque
 void Course::calculateEnds() {
     // We are finding the min and max, so set it to the 
     // worst possible cases so the first element will override this
@@ -71,25 +71,37 @@ void Course::calculateEnds() {
 //Initializes first to 0 and last to -1 (so adding one element fixes the indices)
 // The deques do not have to be initialized
 Course::Course() 
-    : first(0), last(-1) {}
+    : first(0), last(-1), lastTypeUsed(WaypointType.Search) {}
 
+//TO DO Evaluate if last waypoint type is needed (lastTypeUsed, line 79 and others)
+
+//Return the deque whose waypoint corresponds to the first element in the original deque
 deque<pair<int, Waypoint>> &Course::getFrontDeque() {
+    // Check if the queue we need was used recently
+    if (getDeque(lastTypeUsed).front().first == first) return getDeque(lastTypeUsed);
+
     // We know the first index holds the first item, and it is at the front of some deque
     // Therefore, we can just look for which deque starts with this 'first' number
     if (waypointsSearch.front().first == first) return waypointsSearch;
-    if (waypointsGateTraversal.front().first == first) return waypointsGateTraversal;
-    if (waypointsDestination.front().first == first) return waypointsDestination;
-    if (waypointsTargetApproach.front().first == first) return waypointsTargetApproach;
+    else if (waypointsGateTraversal.front().first == first) return waypointsGateTraversal;
+    else if (waypointsDestination.front().first == first) return waypointsDestination;
+    else if (waypointsTargetApproach.front().first == first) return waypointsTargetApproach;
+    else cout << "No Waypoint deques are at the true front";
     return waypointsTargetApproach;
 }
 
+//Return the deque whose waypoint corresponds to the last element in the original deque
 deque<pair<int, Waypoint>> &Course::getLastDeque() {
+    // Check if the queue we need was used recently
+    if (getDeque(lastTypeUsed).back().first == last) return getDeque(lastTypeUsed);
+
     // We know the last index holds the last item, and it is at the back of some deque
     // Therefore, we can just look for which deque ends with this 'last' number
     if (waypointsSearch.back().first == last) return waypointsSearch;
-    if (waypointsGateTraversal.back().first == last) return waypointsGateTraversal;
-    if (waypointsDestination.back().first == last) return waypointsDestination;
-    if (waypointsTargetApproach.back().first == UINT_LEAST8_MAX) return waypointsTargetApproach;
+    else if (waypointsGateTraversal.back().first == last) return waypointsGateTraversal;
+    else if (waypointsDestination.back().first == last) return waypointsDestination;
+    else if (waypointsTargetApproach.back().first == last) return waypointsTargetApproach;
+    else cout << "No Waypoint deques are at the true back";
     return waypointsTargetApproach;
 }
 
@@ -104,6 +116,9 @@ void Course::pushFront(Waypoint waypoint){
     pair<int, Waypoint> pair (first, waypoint);
     // Actually add it to the deque
     waypoints.push_front(pair);
+
+    // Update lastTypedUsed so this WaypointType is more recent
+    lastTypeUsed = waypoint.type;
 }
 
 //Add an item to the back 
@@ -116,6 +131,9 @@ void Course::pushBack(Waypoint waypoint){
     pair<int, Waypoint> pair (last, waypoint);
     //Actually add it to the deque.
     waypoints.push_back(pair);
+    
+    // Update lastTypedUsed so this WaypointType is more recent
+    lastTypeUsed = waypoint.type;
 }
 
 // Remove the first waypoint
@@ -123,6 +141,8 @@ void Course::popFront(){
     deque<pair<int, Waypoint>> waypoints = getFrontDeque();
     //Increment first so that it now points to this new waypoint
     first++;
+    // Update lastTypedUsed so this WaypointType is more recent
+    lastTypeUsed = waypoints.front().first.type;
     //Actually remove it from the deque
     waypoints.pop_front();
 }
@@ -132,18 +152,25 @@ void Course::popBack(){
     deque<pair<int, Waypoint>> waypoints = getLastDeque();
     //Decrease last, so that it now points to this new waypoint
     last--;
+    // Update lastTypedUsed so this WaypointType is more recent
+    lastTypeUsed = waypoints.back().first.type;
     //Actually remove it from the deque
     waypoints.pop_back();
 }
 
+// clear the deque for this type
 void Course::clearAllOfType(WaypointType waypointType){
-    // clear the deque for this type
     deque<pair<int, Waypoint>> waypoints = getDeque(waypointType);
     waypoints.clear();
     calculateEnds();
 }
 
-Waypoint& Course::peekTop(){
-    //Returns the first item's waypoint.
+//Returns the first item's waypoint.
+Waypoint& Course::front(){
     return getFrontDeque().front().second;
+}
+
+//Returns the last item's waypoint.
+Waypoint& Course::back(){ 
+    return getFrontDeque().back().second;
 }

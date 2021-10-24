@@ -15,3 +15,5 @@ Waypoint::Waypoint(bool search_in, bool gate_in, float gate_width_in, int id_in,
     : search(search_in), gate(gate_in), gate_width(gate_width_in), id(id_in), odom(odom_in), type(parseType(type_in))
     { }
 
+//TO DO: Create a new constructor see whether the waypoint lcm and class can coexist
+
