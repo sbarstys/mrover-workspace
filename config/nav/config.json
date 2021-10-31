@@ -13,6 +13,11 @@
 		"kD": 0
 	},
 
+	"gimbal":
+	{
+		"angles1": [0,180]
+	},
+
 	"joystick":
 	{
 		"bearingPower": 0.5,

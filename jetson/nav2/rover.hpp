@@ -129,7 +129,7 @@ public:
         const rapidjson::Document& mRoverConfig();
 
     private:
-        // The rover's overall course.
+        // The rover's overall macro destinations, made only of destination waypoints
         Destinations mDestinations;
 
         // The rover's current odometry information.
@@ -144,6 +144,7 @@ public:
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
+        // internal course including search and gate waypoints
         deque<Waypoint> mCourse;
 
         // first gate post found

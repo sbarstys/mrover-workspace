@@ -32,6 +32,7 @@ public:
         //mStatus->updateRoverStatus( *autonState );
     }
 
+<<<<<<< HEAD
     // Sends the Destinations lcm message to the state machine.
     void destinations(
         const lcm::ReceiveBuffer* recieveBuffer,
@@ -40,6 +41,16 @@ public:
         )
     {
         mStatus->destinations() = *dests;
+=======
+    // Sends the course lcm message to the state machine.
+    void destinations(
+        const lcm::ReceiveBuffer* recieveBuffer,
+        const string& channel,
+        const Destinations* destinations
+        )
+    {
+        mStatus->updateRoverStatus( *destinations );
+>>>>>>> facbde3b4a0ee89b50d71396e6982610a948323f
     }
 
     // Sends the obstacle lcm message to the state machine.
