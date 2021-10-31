@@ -28,17 +28,18 @@ public:
         const AutonState* autonState
         )
     {
-        mStatus->updateRoverStatus( *autonState );
+        //TODO: fill this in with an actual implementation that would trigger the start of the behavior tree
+        //mStatus->updateRoverStatus( *autonState );
     }
 
-    // Sends the course lcm message to the state machine.
-    void course(
+    // Sends the Destinations lcm message to the state machine.
+    void destinations(
         const lcm::ReceiveBuffer* recieveBuffer,
         const string& channel,
-        const Course* course
+        const Destinations* dests
         )
     {
-        mStatus->updateRoverStatus( *course );
+        mStatus->destinations() = *dests;
     }
 
     // Sends the obstacle lcm message to the state machine.
@@ -48,7 +49,8 @@ public:
         const Obstacle* obstacle
         )
     {
-        mStatus->updateRoverStatus( *obstacle );
+        //TODO: set oobstacles in rover state
+        //mStatus->updateRoverStatus( *obstacle );
     }
 
     // Sends the odometry lcm message to the state machine.
@@ -58,7 +60,7 @@ public:
         const Odometry* odometry
         )
     {
-        mStatus->updateRoverStatus( *odometry );
+        mStatus->odometry() = *odometry;
     }
 
     // Sends the target lcm message to the state machine.
@@ -68,7 +70,8 @@ public:
         const TargetList* targetListIn
         )
     {
-        mStatus->updateRoverStatus( *targetListIn );
+        //TODO: update for rover status based config
+        //mStatus->updateRoverStatus( *targetListIn );
     }
 
     // Sends the radio lcm message to the state machine.
@@ -78,7 +81,8 @@ public:
         const RadioSignalStrength* signalIn
         )
     {
-        mStatus->updateRoverStatus( *signalIn );
+        //TODO: update for rover status based config
+        //mStatus->updateRoverStatus( *signalIn );
     }
 
     // Updates Radio Repeater bool in state machine.
@@ -88,12 +92,13 @@ public:
         const RepeaterDrop* completeIn
         )
     {
-        mStatus->updateRepeaterComplete( );
+        //TODO: updatte for rover status based config
+        //mStatus->updateRepeaterComplete( );
     }
 
 private:
     // The state machine to send the lcm messages to.
-    Rover::RoverStatus mStatus;
+    Rover::RoverStatus* mStatus;
 };
 
 
@@ -101,22 +106,34 @@ private:
 // Runs the autonomous navigation of the rover.
 int main()
 {
-    //TODO: get the rover object from a seperate function (uses rover config)
-    gRover = new Rover();
-
-    //initialize lcms
     lcm::LCM lcmObject;
     if( !lcmObject.good() )
     {
         cerr << "Error: cannot create LCM\n";
         return 1;
     }
+    ifstream configFile;
+    string configPath = getenv("MROVER_CONFIG");
+    configPath += "/config_nav/config.json";
+    configFile.open( configPath );
+    string config = "";
+    string setting;
+    while( configFile >> setting )
+    {
+        config += setting;
+    }
+    configFile.close();
+    rapidjson::Document roverConfig;
+    roverConfig.Parse( config.c_str() );
+    gRover = new Rover( roverConfig, lcmObject );
 
-    StateMachine roverStateMachine( lcmObject );
-    LcmHandlers lcmHandlers( &roverStateMachine );
+    //initialize lcms
+    
+
+    LcmHandlers lcmHandlers( &(gRover->roverStatus()) );
 
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
-    lcmObject.subscribe( "/course", &LcmHandlers::course, &lcmHandlers );
+    lcmObject.subscribe( "/course", &LcmHandlers::destinations, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
     lcmObject.subscribe( "/odometry", &LcmHandlers::odometry, &lcmHandlers );
     lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );

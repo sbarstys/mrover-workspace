@@ -95,8 +95,6 @@ public:
             int32_t id;
         };
 
-       
-
         RoverStatus();
 
         RoverStatus(
@@ -124,9 +122,11 @@ public:
 
         deque<Waypoint>& course();
 
-        PostLocation post1();
+        PostLocation& post1();
 
-        PostLocation post2();
+        PostLocation& post2();
+
+        const rapidjson::Document& mRoverConfig();
 
     private:
         // The rover's overall course.

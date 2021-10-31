@@ -20,7 +20,7 @@ void SimplePathFollower::followPath(Path& path){
 
     if (abs(bearingToTarget) > TURN_THRESH){
         //turn to target
-        //TODO: implement PID for this as well (alr exists somewhere)
+        //TODO: implement PID for this as well (alr exists somewhere
         double turningPower = bearingToTarget;
     }
     else{
@@ -35,5 +35,6 @@ void SimplePathFollower::followPath(Path& path){
     }
 
     //TODO: set left and right powers to the rover (call a function)
+    
 
 }

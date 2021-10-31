@@ -1,8 +1,8 @@
 #include "gateNodes.hpp"
 #include "rover.hpp"
 #include "utilities.hpp"
-#include "rover_msgs/Waypoint.lcm"
-#include "rover_msgs/Odometry.lcm"
+#include "rover_msgs/Waypoint.hpp"
+#include "rover_msgs/Odometry.hpp"
 
 #include <math.h>
 
@@ -11,7 +11,7 @@ namespace gateNodes{
 
     // TODO: not done
     BT::NodeStatus isFirstGatePostLocKnown(){
-        if (gRover->roverStatus().FirstGatePostFound()){
+        if (gRover->roverStatus().firstGatePostFound()){
             return BT::NodeStatus::SUCCESS;
         } else {
             return BT::NodeStatus::FAILURE;
@@ -39,7 +39,7 @@ namespace gateNodes{
 
         const double BETWEEN_POSTS = 2;  // space between posts in meters
         const double DIST_MID_GATE = 1.6;  // distance from the midpoint of the gate to first traversal point
-        const double DIST = sqrt(pow(BETWEEN_POSTS/2), 2) + pow(DIST_MID_GATE,2);  // distance from left post to first traversal point
+        const double DIST = sqrt(pow(BETWEEN_POSTS/2, 2) + pow(DIST_MID_GATE,2));  // distance from left post to first traversal point
         const uint8_t LEFT_GATE_ID = 4;
         const uint8_t RIGHT_GATE_ID = 5;
 
@@ -89,7 +89,7 @@ namespace gateNodes{
 
 
     BT::NodeStatus isGateTraversalPoint(){
-        if (gRover->roverStatus().course().peekTop().type == "gateTraversal"){
+        if (gRover->roverStatus().course().front().type == "gateTraversal"){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;

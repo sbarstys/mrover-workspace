@@ -10,7 +10,8 @@ void generateLawnmowerSearchPattern(){
     mSearchPointMultipliers.push_back( pair<short, short> ( -1, 0 ) );
     mSearchPointMultipliers.push_back( pair<short, short> ( -2, 0 ) );
 
-
+    bool first = false;
+    Waypoint prev;
     while( fabs(mSearchPointMultipliers[ 0 ].first * visionDistance) < searchBailThresh )
     {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
@@ -31,12 +32,15 @@ void generateLawnmowerSearchPattern(){
             //TODO: CHANGE THIS TO CORRECT TYPE IMPLEMENATION
             nextWaypoint.odom = nextSearchPoint;
             nextWaypoint.type = "searchPoint";
-            gRover->roverStatus().course().pushBack(nextWaypoint);
+            if (!first){
+                insertWaypointsIntoCourse(prev, nextWaypoint, roverConfig["search"]["visionDistance"]);
+            }
+            else{
+                 gRover->roverStatus().course().push_back(nextWaypoint);
+                 first = false;
+            }
 
             mSearchPointMultiplier.first -= 2;
-            mSearchPoints.push_back( nextSearchPoint );
         }
     }
-    //FIX THIS
-    insertIntermediatePoints();
 }

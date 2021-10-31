@@ -11,6 +11,9 @@ void generateSpiralOutPattern(){
     mSearchPointMultipliers.push_back( pair<short, short> ( -1, -1 ) );
     mSearchPointMultipliers.push_back( pair<short, short> (  1, -1 ) );
 
+    bool first;
+    Waypoint prev;
+
     while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
@@ -28,14 +31,20 @@ void generateSpiralOutPattern(){
             //TODO: CHANGE THIS TO CORRECT TYPE IMPLEMENATION
             nextWaypoint.odom = nextSearchPoint;
             nextWaypoint.type = "searchPoint";
-            gRover->roverStatus().course().pushBack(nextWaypoint);
+            
+            //interpolate between previous point and this point (interpolation adds points in range (first, last] w/inc visionDistance  )
+            if (!first){
+                insertWaypointsIntoCourse(prev, nextWaypoint, roverConfig["search"]["visionDistance"]);
+            }
+            else{
+                 gRover->roverStatus().course().push_back(nextWaypoint);
+                 first = false;
+            }
 
             mSearchPointMultiplier.first < 0 ? --mSearchPointMultiplier.first : ++mSearchPointMultiplier.first;
             mSearchPointMultiplier.second < 0 ? --mSearchPointMultiplier.second : ++mSearchPointMultiplier.second;
 
         }
     }
-    //FIX THIS
-    insertIntermediatePoints();
 
 }
