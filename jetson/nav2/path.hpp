@@ -1,5 +1,7 @@
-#include "rover_msgs/Odometry.lcm"
+#include "rover_msgs/Odometry.hpp"
 #include <vector>
+#ifndef PATH
+#define PATH
 
 class Path{
     
@@ -20,3 +22,5 @@ class Path{
     private:
     std::vector<Odometry> path;
 };
+
+#endif

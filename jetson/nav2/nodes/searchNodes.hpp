@@ -2,7 +2,7 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "rover.hpp"
 #include "searchPatterns/spiralOut.hpp"
-#include "searchPatterns/lawmower.hpp"
+#include "searchPatterns/lawnmower.hpp"
 #include "searchPatterns/spiralIn.hpp"
 namespace searchNodes {
     // Check if the top of the course is a search point

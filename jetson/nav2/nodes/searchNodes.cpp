@@ -4,7 +4,7 @@
 
 namespace searchNodes{
     BT::NodeStatus isSearchPoint(){
-        if (gRover->roverStatus().course().peekTop().type == "search"){
+        if (gRover->roverStatus().course().front().type == "search"){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -12,7 +12,7 @@ namespace searchNodes{
     }
 
     BT::NodeStatus isTargetApproachPoint(){
-        if (gRover->roverStatus().course().peekTop().type == "targetApproach"){
+        if (gRover->roverStatus().course().front().type == "targetApproach"){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -45,7 +45,7 @@ namespace searchNodes{
         Waypoint waypoint;
         waypoint.odom = locationToGo;
         waypoint.type = "targetApproach";
-        gRover->roverStatus().course().pushFront(waypoint);
+        gRover->roverStatus().course().push_front(waypoint);
         return BT::NodeStatus::SUCCESS;
     }
 
@@ -55,8 +55,8 @@ namespace searchNodes{
         The first pattern is the spiral out, then the lawnmower, then spiral in 
         */
         generateSpiralOutPattern();
-        generateLawnmowerPattern();
-        generateSpiralInPattern();
+        generateLawnmowerSearchPattern();
+        generateSpiralInSearchPattern();
         return BT::NodeStatus::SUCCESS;
     }
 

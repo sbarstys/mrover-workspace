@@ -47,16 +47,20 @@ bool Rover::RoverStatus::firstGatePostFound() {
     return mFirstGatePostFound;
 }
 
-PostLocation Rover::RoverStatus::post1(){
-    return post1;
+PostLocation& Rover::RoverStatus::post1(){
+    return mPost1;
 }
 
-PostLocation Rover::RoverStatus::post2(){
-    return post2;
+PostLocation& Rover::RoverStatus::post2(){
+    return mPost2;
 }
 
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
+}
+
+const rapidjson::Document& Rover::RoverStatus::mRoverConfig(){
+    return mRoverConfig;
 }
 
 
@@ -370,6 +374,9 @@ bool Rover::isTurningAroundObstacle( const NavState currentState ) const
     }
     return false;
 } // isTurningAroundObstacle()
+
+
+
 
 /*************************************************************************/
 /* TODOS */

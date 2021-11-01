@@ -6,9 +6,25 @@ incdir = include_directories('include')
 nodes = include_directories('nodes')
 follower = include_directories('followers')
 planner = include_directories('planners')
+searchPattern = include_directories('searchPatterns')
 
-executable('jetson_nav', 'main.cpp', 'course.cpp', 'treeGenerator.cpp', 'followers/pathFollowerBase.cpp',
+executable('jetson_nav2', 'main.cpp', 'treeGenerator.cpp',
+            'nodes/gateNodes.cpp',
+            'nodes/searchNodes.cpp',
+            'nodes/utilityNodes.cpp',
+            'nodes/vendingMachineNodes.cpp',
+            'planners/pathPlannerBase.hpp',
+            'searchPatterns/lawnmower.cpp',
+            'searchPatterns/spiralIn.cpp',
+            'searchPatterns/spiralOut.cpp',
+            'gimbal.cpp',
+            'path.cpp',
+            'pid.cpp',
+            'rover.cpp',
+            'utilities.cpp',
+            'followers/pathFollowerBase.cpp',
             'followers/simplePathFollower.cpp',
+            'planners/simplePathPlanner.cpp',
             'src/blackboard.cpp',
             'src/behavior_tree.cpp',
             'src/action_node.cpp',
@@ -41,5 +57,5 @@ executable('jetson_nav', 'main.cpp', 'course.cpp', 'treeGenerator.cpp', 'followe
             'src/private/tinyxml2.h',
            dependencies : [liblcm],
            link_args : '-ldl',
-           include_directories : [incdir, nodes, follower, planner],
+           include_directories : [incdir, nodes, follower, planner, searchPattern],
            install : true)

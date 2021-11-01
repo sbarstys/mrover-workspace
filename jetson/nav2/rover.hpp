@@ -12,13 +12,73 @@
 #include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
-#include "course.hpp"
+#include "rover_msgs/Destinations.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 #include "gimbal.hpp"
 
 using namespace rover_msgs;
 using namespace std;
+
+
+// This class is the representation of the navigation states.
+enum class NavState
+{
+    // Base States
+    Off = 0,
+    Done = 1,
+
+    // Simple Movement
+    Turn = 10,
+    Drive = 11,
+
+    // Search States
+    SearchFaceNorth = 20,
+    SearchSpin = 21,
+    SearchSpinWait = 22,
+    SearchTurn = 24,
+    SearchDrive = 25,
+    ChangeSearchAlg = 26,
+
+    // Target Found States
+    TurnToTarget = 27,
+    TurnedToTargetWait = 28,
+    DriveToTarget = 29,
+
+    // Obstacle Avoidance States
+    TurnAroundObs = 30,
+    DriveAroundObs = 31,
+    SearchTurnAroundObs = 32,
+    SearchDriveAroundObs = 33,
+
+    // Gate Search States
+    GateSpin = 40,
+    GateSpinWait = 41,
+    GateTurn = 42,
+    GateDrive = 43,
+    GateTurnToCentPoint = 44,
+    GateDriveToCentPoint = 45,
+    GateFace = 46,
+    GateShimmy = 47,
+    GateDriveThrough = 48,
+
+    // Radio Repeater States
+    RadioRepeaterTurn = 50,
+    RadioRepeaterDrive = 51,
+    RepeaterDropWait = 52,
+
+    // Unknown State
+    Unknown = 255
+
+}; // AutonState
+
+// This class is the representation of the drive status.
+enum class DriveStatus
+{
+    Arrived,
+    OnCourse,
+    OffCourse
+}; // DriveStatus
 
 
 // This class creates a Rover object which can perform operations that
@@ -39,7 +99,7 @@ public:
 
         RoverStatus(
             Bearing bearingIn,
-            Destinations destinationsIn,
+            deque<Waypoint> courseIn,
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
@@ -62,9 +122,11 @@ public:
 
         deque<Waypoint>& course();
 
-        PostLocation post1();
+        PostLocation& post1();
 
-        PostLocation post2();
+        PostLocation& post2();
+
+        const rapidjson::Document& mRoverConfig();
 
     private:
         // The rover's overall macro destinations, made only of destination waypoints
@@ -89,8 +151,8 @@ public:
         bool mFirstGatePostFound = false;
 
         //post locations
-        PostLocation post1;
-        PostLocation post2;
+        PostLocation mPost1;
+        PostLocation mPost2;
 
     };
 

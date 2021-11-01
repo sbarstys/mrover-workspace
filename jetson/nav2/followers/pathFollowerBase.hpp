@@ -1,4 +1,7 @@
-#include "rover_msgs/Waypoint.lcm"
+#ifndef PATH_FOLLOWER_BASE
+#define PATH_FOLLOWER_BASE
+
+#include "rover_msgs/Waypoint.hpp"
 #include "path.hpp"
 
 class PathFollowerBase{
@@ -6,8 +9,12 @@ class PathFollowerBase{
     
     virtual void followPath(Path& path) = 0;
 
-    bool isArrived(Waypoint& waypoint);
+    virtual bool isArrived(Waypoint waypoint) = 0;
+
+    virtual ~PathFollowerBase() = default;
 
     protected:
 
 };
+
+#endif
