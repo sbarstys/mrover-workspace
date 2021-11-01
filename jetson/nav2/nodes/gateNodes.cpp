@@ -92,12 +92,11 @@ namespace gateNodes{
         w1.odom.bearing_deg = bearing;
         w2.odom.bearing_deg = bearing;
 
-        gRover->roverStatus().course().pushBack( w1 );
-        gRover->roverStatus().course().pushBack( w2 );
+        gRover->roverStatus().course().push_back( w1 );
+        gRover->roverStatus().course().push_back( w2 );
 
         return true;
     }
-
 
     BT::NodeStatus isGateTraversalPoint(){
         if (gRover->roverStatus().course().front().type == "gateTraversal"){
@@ -109,7 +108,7 @@ namespace gateNodes{
     BT::NodeStatus hasGateTraversalPoints(){
         // TODO do we have to look at the top point or the next point?
         // this node is the same as isGateTraversalPoint() that may change
-        if (gRover->roverStatus().course().peekTop().type == "gateTraversal"){
+        if (gRover->roverStatus().course().front().type == "gateTraversal"){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -141,12 +140,12 @@ namespace gateNodes{
         const uint8_t RIGHT_GATE_ID = 5;
 
         // if we see two targets check if we traversed in the correct direction
-        if ( gRover->target().distance >= 0 && gRover->target2().distance >= 0 ){
+        if ( gRover->roverStatus().target().distance >= 0 && gRover->roverStatus().target2().distance >= 0 ){
 
-            if ( gRover->target().id == LEFT_GATE_ID && gRover->target2().id == RIGHT_GATE_ID ){
+            if ( gRover->roverStatus().target().id == LEFT_GATE_ID && gRover->roverStatus().target2().id == RIGHT_GATE_ID ){
 
-                double left_angle = (gRover->target().bearing > 180.0) ? gRover->target().bearing - 360.0: gRover->target().bearing;
-                double right_angle = (gRover->target2().bearing > 180.0) ? gRover->target2().bearing - 360.0: gRover->target2().bearing;;
+                double left_angle = (gRover->roverStatus().target().bearing > 180.0) ? gRover->roverStatus().target().bearing - 360.0: gRover->roverStatus().target().bearing;
+                double right_angle = (gRover->roverStatus().target2().bearing > 180.0) ? gRover->roverStatus().target2().bearing - 360.0: gRover->roverStatus().target2().bearing;;
 
                 //condition flipped since we are on the opposite side of the gate
                 if (right_angle > left_angle){
@@ -160,10 +159,10 @@ namespace gateNodes{
                 }
 
             }
-            else if ( gRover->target().id == RIGHT_GATE_ID && gRover->target2().id == LEFT_GATE_ID ){
+            else if ( gRover->roverStatus().target().id == RIGHT_GATE_ID && gRover->roverStatus().target2().id == LEFT_GATE_ID ){
 
-                double left_angle = (gRover->target2().bearing > 180.0) ? gRover->target2().bearing - 360.0: gRover->target2().bearing;
-                double right_angle = (gRover->target().bearing > 180.0) ? gRover->target().bearing - 360.0: gRover->target().bearing;;
+                double left_angle = (gRover->roverStatus().target2().bearing > 180.0) ? gRover->roverStatus().target2().bearing - 360.0: gRover->roverStatus().target2().bearing;
+                double right_angle = (gRover->roverStatus().target().bearing > 180.0) ? gRover->roverStatus().target().bearing - 360.0: gRover->roverStatus().target().bearing;;
 
                 // condition flipped since we are on the opposite side of the gate
                 if (right_angle > left_angle){
@@ -179,7 +178,7 @@ namespace gateNodes{
             else {
                 // we see the targets but they are not gate IDs
                 //TODO done = true;
-                gRover->autonState().
+                //gRover->autonState().
                 return BT::NodeStatus::SUCCESS;
             }
 
@@ -187,11 +186,11 @@ namespace gateNodes{
             bool at_desired_angle = gRover->sendGimbalSetpoint(gRover->gimbalAngles()[mGimbal_index]);
             if (at_desired_angle){
                 if (gRover->gimbalIndex() == gRover->gimbalAngles().size()-1){
-                    // done
+                    // TODO: done = true
                     return BT::NodeStatus::SUCCESS;
                 }
                 else{
-                    gRover->gimbalIndex()++
+                    gRover->gimbalIndex()++;
                     return BT::NodeStatus::FAILURE;
                 }
             }
@@ -210,7 +209,7 @@ namespace gateNodes{
         factory.registerSimpleAction("isGateTraversalPoint", std::bind(isGateTraversalPoint));
         factory.registerSimpleAction("hasGateTraversalPoints", std::bind(hasGateTraversalPoints));
         factory.registerSimpleAction("verifyGateTraversal", std::bind(verifyGateTraversal));
-        factory.registerSimpleAction("genSecondPostSearchPattern", std::bind(regenGateTraversalWaypoints));
+        factory.registerSimpleAction("genSecondPostSearchPattern", std::bind(genSecondPostSearchPattern));
 
     }
 
