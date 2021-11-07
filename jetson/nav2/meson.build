@@ -9,7 +9,6 @@ planner = include_directories('planners')
 searchPattern = include_directories('searchPatterns')
 
 executable('jetson_nav2', 'main.cpp', 'treeGenerator.cpp',
-            'nodes/gateNodes.cpp',
             'nodes/searchNodes.cpp',
             'nodes/utilityNodes.cpp',
             'nodes/vendingMachineNodes.cpp',
@@ -22,6 +21,7 @@ executable('jetson_nav2', 'main.cpp', 'treeGenerator.cpp',
             'pid.cpp',
             'rover.cpp',
             'utilities.cpp',
+            'nodes/gateNodes.cpp',
             'followers/pathFollowerBase.cpp',
             'followers/simplePathFollower.cpp',
             'planners/simplePathPlanner.cpp',
