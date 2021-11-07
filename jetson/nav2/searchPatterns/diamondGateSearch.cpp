@@ -41,9 +41,9 @@ void generateDiamondGateSearch(){
     waypoint3.type = "gateTraversal";
     waypoint4.type = "gateTraversal";
 
-    gRover->roverStatus().course().pushBack(waypoint1);
-    gRover->roverStatus().course().pushBack(waypoint2);
-    gRover->roverStatus().course().pushBack(waypoint3);
-    gRover->roverStatus().course().pushBack(waypoint4);
+    gRover->roverStatus().course().push_back(waypoint1);
+    gRover->roverStatus().course().push_back(waypoint2);
+    gRover->roverStatus().course().push_back(waypoint3);
+    gRover->roverStatus().course().push_back(waypoint4);
 
 }

@@ -3,7 +3,7 @@
 using namespace std;
 
 void generateSpiralInPattern(){
-    vector<pair<short, short>> mSearchPoints;
+    vector<pair<short, short>> mSearchPointMultipliers;
 
     mSearchPointMultipliers.clear();
     mSearchPointMultipliers.push_back( pair<short, short> ( -1,  0 ) );
@@ -13,15 +13,16 @@ void generateSpiralInPattern(){
 
     Waypoint prev;
     bool first = true;
-
-    while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
+    double visionDistance = (gRover->roverStatus().mRoverConfig())["search"]["visionDistance"];
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < (gRover->roverStatus().mRoverConfig())[ "search" ][ "bailThresh" ].GetDouble() ) {
+        
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = rover->roverStatus().path().front().odom;
+            Odometry nextSearchPoint = gRover->roverStatus().course().back().odom;
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                 ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * visionDistance * rover->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * visionDistance * gRover->longMeterInMinutes() );
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;
@@ -32,7 +33,7 @@ void generateSpiralInPattern(){
             nextWaypoint.odom = nextSearchPoint;
             nextWaypoint.type = "searchPoint";
             if (!first){
-                insertWaypointsIntoCourse(prev, nextWaypoint, roverConfig["search"]["visionDistance"]);
+                insertWaypointsIntoCourse(prev, nextWaypoint, visionDistance);
             }
             else{
                  gRover->roverStatus().course().push_back(nextWaypoint);
