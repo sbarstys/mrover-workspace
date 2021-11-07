@@ -122,6 +122,8 @@ public:
 
         deque<Waypoint>& course();
 
+        vector<Odometry>& path();
+
         PostLocation& post1();
 
         PostLocation& post2();
@@ -129,6 +131,9 @@ public:
         const rapidjson::Document& mRoverConfig();
 
     private:
+        // The rover's current auton state.
+        AutonState mAutonState;
+
         // The rover's overall macro destinations, made only of destination waypoints
         Destinations mDestinations;
 
@@ -153,6 +158,8 @@ public:
         //post locations
         PostLocation mPost1;
         PostLocation mPost2;
+
+        vector<Odometry> mPath;
 
     };
 
@@ -200,7 +207,7 @@ private:
 
     bool isEqual( const Target& target1, const Target& target2 ) const;
 
-    bool isTurningAroundObstacle( const NavState currentState ) const;
+    bool isTurningAroundObstacle() const;
 
     /*************************************************************************/
     /* Private Member Variables */
