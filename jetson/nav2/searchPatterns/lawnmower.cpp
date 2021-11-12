@@ -2,8 +2,8 @@
 #include <cmath>
 
 void generateLawnmowerSearchPattern(){
-    const double searchBailThresh = gRover->roverStatus().mRoverConfig()[ "search" ][ "bailThresh" ].GetDouble();
-    const double visionDistance = gRover->roverStatus().mRoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
+    const double searchBailThresh = gRover->RoverConfig()[ "search" ][ "bailThresh" ].GetDouble();
+    const double visionDistance = gRover->RoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
 
     vector< pair<short, short> > mSearchPointMultipliers;
     // mSearchPointMultipliers.push_back( pair<short, short> (  0, 0 ) );
@@ -35,7 +35,7 @@ void generateLawnmowerSearchPattern(){
             nextWaypoint.odom = nextSearchPoint;
             nextWaypoint.type = "searchPoint";
             if (!first){
-                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->roverStatus().mRoverConfig()["search"]["visionDistance"].GetDouble());
+                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->RoverConfig()["search"]["visionDistance"].GetDouble());
             }
             else{
                  gRover->roverStatus().course().push_back(nextWaypoint);

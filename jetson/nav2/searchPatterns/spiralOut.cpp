@@ -4,7 +4,7 @@ using namespace std;
 
 void generateSpiralOutPattern(){
     //generates the spiral out pattern
-    const double visionDistance = gRover->roverStatus().mRoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
+    const double visionDistance = gRover->RoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
 
 
     vector< pair<short, short> > mSearchPointMultipliers;
@@ -16,7 +16,7 @@ void generateSpiralOutPattern(){
     bool first;
     Waypoint prev;
 
-    while( mSearchPointMultipliers[ 0 ].second * visionDistance < gRover->roverStatus().mRoverConfig()[ "search" ][ "bailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < gRover->RoverConfig()[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
             Odometry nextSearchPoint = gRover->roverStatus().course().front().odom;
@@ -36,7 +36,7 @@ void generateSpiralOutPattern(){
             
             //interpolate between previous point and this point (interpolation adds points in range (first, last] w/inc visionDistance  )
             if (!first){
-                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->roverStatus().mRoverConfig()["search"]["visionDistance"].GetDouble());
+                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->RoverConfig()["search"]["visionDistance"].GetDouble());
             }
             else{
                  gRover->roverStatus().course().push_back(nextWaypoint);

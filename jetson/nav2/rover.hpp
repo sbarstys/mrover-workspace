@@ -3,6 +3,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
+#include <vector>
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
@@ -13,9 +14,11 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rover_msgs/Destinations.hpp"
+#include "rover_msgs/Obstacle.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 #include "gimbal.hpp"
+
 
 using namespace rover_msgs;
 using namespace std;
@@ -80,6 +83,11 @@ enum class DriveStatus
     OffCourse
 }; // DriveStatus
 
+struct PostLocation{
+            Odometry location;
+            int32_t id;
+};// PostLocation
+
 
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
@@ -90,10 +98,7 @@ public:
     class RoverStatus
     {
     public:
-        struct PostLocation{
-            Odometry location;
-            int32_t id;
-        };
+        
 
         RoverStatus();
 
@@ -128,7 +133,9 @@ public:
 
         PostLocation& post2();
 
-        const rapidjson::Document& mRoverConfig();
+        AutonState& autonState();
+
+        Obstacle& obstacle();
 
     private:
         // The rover's current auton state.
@@ -161,6 +168,10 @@ public:
 
         vector<Odometry> mPath;
 
+        Obstacle mObstacle;
+
+    
+
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
@@ -189,7 +200,7 @@ public:
 
     const vector<double> gimbalAngles() const;
 
-    int& gimbalIndex() const;
+    int& gimbalIndex();
 
     void updateRepeater( RadioSignalStrength& signal);
 
@@ -200,6 +211,8 @@ public:
     void publishGimbal();
 
     bool sendGimbalSetpoint(double desired_yaw);
+
+    const rapidjson::Document& RoverConfig();
 
 private:
     /*************************************************************************/
@@ -247,7 +260,7 @@ private:
     const vector<double> mGimbalAngles;
 
     // keeps track of the index of the desired gimbal angle in the angle vector
-    int mGimbalIndex;
+    int mGimbalIndex = 0;
 };
 
 Rover* gRover;

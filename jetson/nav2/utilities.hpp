@@ -24,7 +24,7 @@ double estimateNoneuclid( const Odometry& start, const Odometry& dest );
 
 Odometry createOdom ( const Odometry & current, const double bearing, const double distance, Rover * rover );
 
-Odometry createOdom( const Odometry & referencePoint, double bearing);
+Odometry createOdom( const Odometry & referencePoint, double bearing, const double distance);
 
 double calcBearing( const Odometry& start, const Odometry& dest );
 
