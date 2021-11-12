@@ -54,7 +54,7 @@ PostLocation& Rover::RoverStatus::post2(){
     return mPost2;
 }
 
-Odometry& Rover::RoverStatus::path(){
+vector<Odometry>& Rover::RoverStatus::path(){
     return mPath;
 }
 
@@ -62,7 +62,7 @@ RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 }
 
-const rapidjson::Document& Rover::RoverStatus::mRoverConfig(){
+const rapidjson::Document& Rover::RoverConfig(){
     return mRoverConfig;
 }
 
@@ -71,6 +71,11 @@ Obstacle& Rover::RoverStatus::obstacle()
 {
     return mObstacle;
 } // obstacle()
+
+AutonState& Rover::RoverStatus::autonState()
+{
+    return mAutonState;
+}
 
 
 // Assignment operator for the rover status object. Does a "deep" copy
@@ -98,12 +103,11 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal( config["gimbal"]["tolerance"].GetDouble()),
-    , mGimbalAngles( config[ "gimbal" ][ "angles1" ].GetArray(),
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()) /
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()[0]))
-    , mGimbalIndex ( 0 )
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbalAngles( 0,1)
 {
+    //TODO: init mGimbalAngles from config array (use for loop)
+    
 } // Rover()
 
 // Sends a joystick command to drive forward from the current odometry
