@@ -4,6 +4,7 @@
 #include "rover_msgs/Waypoint.hpp"
 #include "rover.hpp"
 #include "utilities.hpp"
+#include <cmath>
 void insertWaypointsIntoCourse(Waypoint p1, Waypoint p2, double visionDistance);
 
 #endif
