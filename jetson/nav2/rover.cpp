@@ -98,7 +98,11 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble()),
+    , mGimbalAngles( config[ "gimbal" ][ "angles1" ].GetArray(),
+               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()) /
+               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()[0]))
+    , mGimbalIndex ( 0 )
 {
 } // Rover()
 
@@ -257,6 +261,16 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
 const double Rover::longMeterInMinutes() const
 {
     return mLongMeterInMinutes;
+}
+
+const vector<double> Rover::gimbalAngles() const
+{
+    return mGimbalAngles;
+}
+
+int& Rover::gimbalIndex()
+{
+    return mGimbalIndex;
 }
 
 // Executes the logic starting the clock to time how long it's been

@@ -109,10 +109,6 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal_angles( config[ "gimbal" ][ "angles1" ].GetArray(),
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()) /
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()[0]))
-    , mGimbal_index ( 0 )
 {
 } // Rover()
 
@@ -275,16 +271,6 @@ const double Rover::longMeterInMinutes() const
     return mLongMeterInMinutes;
 }
 
-
-const vector<double> gimbalAngles() const
-{
-    return mGimbalAngles;
-}
-
-int& gimbalIndex()
-{
-    return mGimbalIndex;
-}
 // Executes the logic starting the clock to time how long it's been
 // since the rover has gotten a strong radio signal. If the signal drops
 // below the signalStrengthCutOff and the timer hasn't started, begin the clock.

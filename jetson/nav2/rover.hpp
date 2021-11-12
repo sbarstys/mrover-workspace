@@ -86,7 +86,7 @@ enum class DriveStatus
 class Rover
 {
 public:
-    // This class holds all the status informatin of the rover.
+    // This class holds all the status information of the rover.
     class RoverStatus
     {
     public:
@@ -187,6 +187,10 @@ public:
 
     const double longMeterInMinutes() const;
 
+    const vector<double> gimbalAngles() const;
+
+    int& gimbalIndex() const;
+
     void updateRepeater( RadioSignalStrength& signal);
 
     bool isTimeToDropRepeater();
@@ -238,6 +242,12 @@ private:
 
     // Gimbal object.
     Gimbal mGimbal;
+
+    // vector with desired gimbal path
+    const vector<double> mGimbalAngles;
+
+    // keeps track of the index of the desired gimbal angle in the angle vector
+    int mGimbalIndex;
 };
 
 Rover* gRover;
