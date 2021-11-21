@@ -427,8 +427,8 @@ export default class NavSimulator extends Vue {
 
       this.publish('/radio', { type: 'RadioSignalStrength', signal_strength: this.radioStrength });
 
-      const destinations:any = {
-        type: 'Destinations',
+      const course:any = {
+        type: 'Course',
         num_waypoints: this.waypoints.length,
         waypoints: this.waypoints.map((waypoint) => ({
           type: 'Waypoint',
@@ -439,8 +439,8 @@ export default class NavSimulator extends Vue {
           search: waypoint.search
         }))
       };
-      destinations.hash = fnvPlus.fast1a52(JSON.stringify(destinations));
-      this.publish('/destinations', destinations);
+      course.hash = fnvPlus.fast1a52(JSON.stringify(course));
+      this.publish('/course', course);
 
       const zedGimbalPos:any = Object.assign(this.zedGimbalPos, { type: 'ZedGimbalPosition' });
       this.publish('/zed_gimbal_data', zedGimbalPos);

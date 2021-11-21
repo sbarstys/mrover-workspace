@@ -19,7 +19,6 @@ SimplePathFollower::simplePathFollower( lcm::LCM& lcmObject )
     }
     configFile.close();
     mRoverConfig.Parse( config.c_str() );
-    mRover = new Rover( mRoverConfig, lcmObject );
 
 void SimplePathFollower::followPath(std::vector<Odometry>& path){
     // //check if angle to target is greater than x degrees, if so turn to target

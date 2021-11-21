@@ -9,7 +9,7 @@
 class SimplePathFollower : public PathFollowerBase{
     public:
         void followPath(Path& path);
-        SimplePathFollower(lcm::LCM& lcmObject)
+        SimplePathFollower(lcm::LCM& lcmObject);
 
     private:
         enum class DriveStatus {
