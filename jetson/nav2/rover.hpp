@@ -263,6 +263,6 @@ private:
     int mGimbalIndex = 0;
 };
 
-Rover* gRover;
+extern Rover* gRover;
 
 #endif // ROVER_HPP

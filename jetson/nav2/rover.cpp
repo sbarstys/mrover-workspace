@@ -399,7 +399,7 @@ bool Rover::isTurningAroundObstacle() const
 } // isTurningAroundObstacle()
 
 
-
+Rover* gRover;
 
 /*************************************************************************/
 /* TODOS */

@@ -4,4 +4,4 @@
 #include "searchPatternUtils.hpp"
 #include "rover.hpp"
 
-void generateSpiralInSearchPattern();
+void generateSpiralInPattern();
