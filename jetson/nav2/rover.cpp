@@ -8,7 +8,6 @@
 // Constructs a rover status object and initializes the navigation
 // state to off.
 Rover::RoverStatus::RoverStatus()
-    : mCurrentState( NavState::Off )
 {
     mAutonState.is_auton = false;
 } // RoverStatus()
@@ -22,7 +21,7 @@ Destinations& Rover::RoverStatus::destinations()
 
 
 //Gets a reference to the rovers Course
-Course& Rover::RoverStatus::course(){
+deque<Waypoint>& Rover::RoverStatus::course(){
     return mCourse;
 }
 
@@ -55,12 +54,27 @@ PostLocation& Rover::RoverStatus::post2(){
     return mPost2;
 }
 
+vector<Odometry>& Rover::RoverStatus::path(){
+    return mPath;
+}
+
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 }
 
-const rapidjson::Document& Rover::RoverStatus::mRoverConfig(){
+const rapidjson::Document& Rover::RoverConfig(){
     return mRoverConfig;
+}
+
+// Gets a reference to the rover's current obstacle information.
+Obstacle& Rover::RoverStatus::obstacle()
+{
+    return mObstacle;
+} // obstacle()
+
+AutonState& Rover::RoverStatus::autonState()
+{
+    return mAutonState;
 }
 
 
@@ -89,12 +103,11 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal( config["gimbal"]["tolerance"].GetDouble()),
-    , mGimbalAngles( config[ "gimbal" ][ "angles1" ].GetArray(),
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()) /
-               sizeof(config[ "gimbal" ][ "angles1" ].GetArray()[0]))
-    , mGimbalIndex ( 0 )
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbalAngles( 0,1)
 {
+    //TODO: init mGimbalAngles from config array (use for loop)
+    
 } // Rover()
 
 // Sends a joystick command to drive forward from the current odometry
@@ -170,7 +183,7 @@ bool Rover::turn( double bearing )
     bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
     double turningBearingThreshold;
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) )
+    if( isTurningAroundObstacle() )
     {
         turningBearingThreshold = 0;
     }
@@ -184,7 +197,7 @@ bool Rover::turn( double bearing )
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
     double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * (turningEffort < 0 ? -1 : 1);
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs(turningEffort) < minTurningEffort )
+    if( isTurningAroundObstacle() && fabs(turningEffort) < minTurningEffort )
     {
         turningEffort = minTurningEffort;
     }
@@ -379,18 +392,14 @@ bool Rover::isEqual( const Target& target1, const Target& target2 ) const
 
 // Return true if the current state is TurnAroundObs or SearchTurnAroundObs,
 // false otherwise.
-bool Rover::isTurningAroundObstacle( const NavState currentState ) const
+bool Rover::isTurningAroundObstacle() const
 {
-    if( currentState == NavState::TurnAroundObs ||
-        currentState == NavState::SearchTurnAroundObs )
-    {
-        return true;
-    }
-    return false;
+ ///TODO FILL THIS IN WITH A MEMBER VARIABLE
+   return false;
 } // isTurningAroundObstacle()
 
 
-
+Rover* gRover;
 
 /*************************************************************************/
 /* TODOS */

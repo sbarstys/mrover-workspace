@@ -56,7 +56,7 @@ namespace searchNodes{
         */
         generateSpiralOutPattern();
         generateLawnmowerSearchPattern();
-        generateSpiralInSearchPattern();
+        generateSpiralInPattern();
         return BT::NodeStatus::SUCCESS;
     }
 

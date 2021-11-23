@@ -19,7 +19,7 @@ namespace gateNodes{
 
     BT::NodeStatus genGateTraversalPath(){
 
-        if (genGateTraversalPath()){
+        if (genGateTraversalPathHelper()){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -81,11 +81,11 @@ namespace gateNodes{
         // TODO implement this correctly
         Waypoint w1;
         w1.type = "gateTraversal";
-        w1.odom = createOdom( left_post, phi+theta1 );
+        w1.odom = createOdom( left_post, phi+theta1, DIST );
 
         Waypoint w2;
         w2.type = "gateTraversal";
-        w2.odom = createOdom( left_post, phi-theta1 );
+        w2.odom = createOdom( left_post, phi-theta1, DIST );
 
         double bearing = calcBearing( w1.odom,w2.odom );
 
@@ -183,9 +183,9 @@ namespace gateNodes{
             }
 
         } else {
-            bool at_desired_angle = gRover->sendGimbalSetpoint(gRover->gimbalAngles()[mGimbal_index]);
+            bool at_desired_angle = gRover->sendGimbalSetpoint(gRover->gimbalAngles()[gRover->gimbalIndex()]);
             if (at_desired_angle){
-                if (gRover->gimbalIndex() == gRover->gimbalAngles().size()-1){
+                if (gRover->gimbalIndex() == (int)gRover->gimbalAngles().size()-1){
                     // TODO: done = true
                     return BT::NodeStatus::SUCCESS;
                 }
@@ -195,7 +195,9 @@ namespace gateNodes{
                 }
             }
         }
-     }
+        // if not at desired angle return failure (will re-run)
+        return BT::NodeStatus::FAILURE;
+    }
 
     BT::NodeStatus genSecondPostSearchPattern(){
         generateDiamondGateSearch();

@@ -4,6 +4,8 @@ using namespace std;
 
 void generateSpiralOutPattern(){
     //generates the spiral out pattern
+    const double visionDistance = gRover->RoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
+
 
     vector< pair<short, short> > mSearchPointMultipliers;
     mSearchPointMultipliers.push_back( pair<short, short> (  0,  1 ) );
@@ -14,14 +16,14 @@ void generateSpiralOutPattern(){
     bool first;
     Waypoint prev;
 
-    while( mSearchPointMultipliers[ 0 ].second * visionDistance < roverConfig[ "search" ][ "bailThresh" ].GetDouble() ) {
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < gRover->RoverConfig()[ "search" ][ "bailThresh" ].GetDouble() ) {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = gRover->roverStatus().course().peekFront();
+            Odometry nextSearchPoint = gRover->roverStatus().course().front().odom;
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                 ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * visionDistance * rover->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * visionDistance * gRover->longMeterInMinutes() );
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
             nextSearchPoint.longitude_deg += totalLongitudeMinutes / 60;
@@ -34,7 +36,7 @@ void generateSpiralOutPattern(){
             
             //interpolate between previous point and this point (interpolation adds points in range (first, last] w/inc visionDistance  )
             if (!first){
-                insertWaypointsIntoCourse(prev, nextWaypoint, roverConfig["search"]["visionDistance"]);
+                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->RoverConfig()["search"]["visionDistance"].GetDouble());
             }
             else{
                  gRover->roverStatus().course().push_back(nextWaypoint);

@@ -13,8 +13,8 @@ void generateSpiralInPattern(){
 
     Waypoint prev;
     bool first = true;
-    double visionDistance = (gRover->roverStatus().mRoverConfig())["search"]["visionDistance"];
-    while( mSearchPointMultipliers[ 0 ].second * visionDistance < (gRover->roverStatus().mRoverConfig())[ "search" ][ "bailThresh" ].GetDouble() ) {
+    double visionDistance = (gRover->RoverConfig())["search"]["visionDistance"].GetDouble();
+    while( mSearchPointMultipliers[ 0 ].second * visionDistance < (gRover->RoverConfig())[ "search" ][ "bailThresh" ].GetDouble() ) {
         
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {

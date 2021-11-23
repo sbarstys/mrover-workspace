@@ -1,5 +1,5 @@
 #include "diamondGateSearch.hpp"
-
+using namespace std;
 void generateDiamondGateSearch(){
 
     Odometry currOdom = gRover->roverStatus().odometry();
@@ -9,20 +9,20 @@ void generateDiamondGateSearch(){
 
     // TODO: make figure explaining this in drive and link here
     double distance = sqrt(pow(targetDist, 2) + pow(diamondWidth, 2));
-    double theta = atan2(diamondWidth, targetDist) * 180 / PI;
+    double theta = atan2(diamondWidth, targetDist) * 180 / 3.14159265358979323846;
     double relTurn = theta + targetBearing;
-    double angle = mod(currOdom.bearing_deg + relTurn, 360); // absolute bearing
+    double angle = fmod(currOdom.bearing_deg + relTurn, 360); // absolute bearing
 
     Odometry corner1 = createOdom(currOdom, angle, distance, gRover);
 
-    const double absolute_bear_to_target = mod(currOdom.bearing_deg + targetBearing, 360);
+    const double absolute_bear_to_target = fmod(currOdom.bearing_deg + targetBearing, 360);
     Odometry corner2 = createOdom(currOdom, absolute_bear_to_target, diamondWidth + targetDist, gRover);
 
     relTurn = -1 * theta + targetBearing;
-    angle = mod(currOdom.bearing_deg + relTurn, 360);
+    angle = fmod(currOdom.bearing_deg + relTurn, 360);
     Odometry corner3 = createOdom(currOdom, angle, distance, gRover);
 
-    Odometry corner4 = createOdom(currOdom, mod(absolute_bear_to_target + 180, 360), diamondWidth - targetDist, gRover);
+    Odometry corner4 = createOdom(currOdom, fmod(absolute_bear_to_target + 180, 360), diamondWidth - targetDist, gRover);
 
 
     Waypoint waypoint1;

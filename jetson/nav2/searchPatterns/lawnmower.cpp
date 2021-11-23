@@ -1,7 +1,9 @@
 #include "lawnmower.hpp"
+#include <cmath>
 
 void generateLawnmowerSearchPattern(){
-    const double searchBailThresh = roverConfig[ "search" ][ "bailThresh" ].GetDouble();
+    const double searchBailThresh = gRover->RoverConfig()[ "search" ][ "bailThresh" ].GetDouble();
+    const double visionDistance = gRover->RoverConfig()[ "computerVision" ][ "visionDistance" ].GetDouble();
 
     vector< pair<short, short> > mSearchPointMultipliers;
     // mSearchPointMultipliers.push_back( pair<short, short> (  0, 0 ) );
@@ -16,12 +18,12 @@ void generateLawnmowerSearchPattern(){
     {
         for( auto& mSearchPointMultiplier : mSearchPointMultipliers )
         {
-            Odometry nextSearchPoint = gRover->roverStatus().course().peekFront();
+            Odometry nextSearchPoint = gRover->roverStatus().course().front().odom;
 
             double totalLatitudeMinutes = nextSearchPoint.latitude_min +
                 ( mSearchPointMultiplier.first * visionDistance  * LAT_METER_IN_MINUTES );
             double totalLongitudeMinutes = nextSearchPoint.longitude_min +
-                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * rover->longMeterInMinutes() );
+                ( mSearchPointMultiplier.second * (2 * searchBailThresh) * gRover->longMeterInMinutes() );
 
             nextSearchPoint.latitude_deg += totalLatitudeMinutes / 60;
             nextSearchPoint.latitude_min = ( totalLatitudeMinutes - ( ( (int) totalLatitudeMinutes ) / 60 ) * 60 );
@@ -33,7 +35,7 @@ void generateLawnmowerSearchPattern(){
             nextWaypoint.odom = nextSearchPoint;
             nextWaypoint.type = "searchPoint";
             if (!first){
-                insertWaypointsIntoCourse(prev, nextWaypoint, roverConfig["search"]["visionDistance"]);
+                insertWaypointsIntoCourse(prev, nextWaypoint, gRover->RoverConfig()["search"]["visionDistance"].GetDouble());
             }
             else{
                  gRover->roverStatus().course().push_back(nextWaypoint);

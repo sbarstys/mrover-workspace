@@ -3,6 +3,7 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
+#include <vector>
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
@@ -13,9 +14,11 @@
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
 #include "rover_msgs/Destinations.hpp"
+#include "rover_msgs/Obstacle.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
 #include "gimbal.hpp"
+
 
 using namespace rover_msgs;
 using namespace std;
@@ -80,6 +83,11 @@ enum class DriveStatus
     OffCourse
 }; // DriveStatus
 
+struct PostLocation{
+            Odometry location;
+            int32_t id;
+};// PostLocation
+
 
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
@@ -90,10 +98,7 @@ public:
     class RoverStatus
     {
     public:
-        struct PostLocation{
-            Odometry location;
-            int32_t id;
-        };
+        
 
         RoverStatus();
 
@@ -122,13 +127,20 @@ public:
 
         deque<Waypoint>& course();
 
+        vector<Odometry>& path();
+
         PostLocation& post1();
 
         PostLocation& post2();
 
-        const rapidjson::Document& mRoverConfig();
+        AutonState& autonState();
+
+        Obstacle& obstacle();
 
     private:
+        // The rover's current auton state.
+        AutonState mAutonState;
+
         // The rover's overall macro destinations, made only of destination waypoints
         Destinations mDestinations;
 
@@ -153,6 +165,12 @@ public:
         //post locations
         PostLocation mPost1;
         PostLocation mPost2;
+
+        vector<Odometry> mPath;
+
+        Obstacle mObstacle;
+
+    
 
     };
 
@@ -182,7 +200,7 @@ public:
 
     const vector<double> gimbalAngles() const;
 
-    int& gimbalIndex() const;
+    int& gimbalIndex();
 
     void updateRepeater( RadioSignalStrength& signal);
 
@@ -194,6 +212,8 @@ public:
 
     bool sendGimbalSetpoint(double desired_yaw);
 
+    const rapidjson::Document& RoverConfig();
+
 private:
     /*************************************************************************/
     /* Private Member Functions */
@@ -204,7 +224,7 @@ private:
 
     bool isEqual( const Target& target1, const Target& target2 ) const;
 
-    bool isTurningAroundObstacle( const NavState currentState ) const;
+    bool isTurningAroundObstacle() const;
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -240,9 +260,9 @@ private:
     const vector<double> mGimbalAngles;
 
     // keeps track of the index of the desired gimbal angle in the angle vector
-    int mGimbalIndex;
+    int mGimbalIndex = 0;
 };
 
-Rover* gRover;
+extern Rover* gRover;
 
 #endif // ROVER_HPP
