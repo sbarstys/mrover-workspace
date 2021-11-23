@@ -25,62 +25,39 @@ void SimplePathFollower::followPath(std::vector<Odometry>& path){
     // //check if angle to target is greater than x degrees, if so turn to target
     // //else move forwards toward target with corrective factor for bearing
 
-    // const int TURN_THRESH = 10;
+void SimplePathFollower::followPath(vector<Odometry>& path){
+    //check if angle to target is greater than x degrees, if so turn to target
+    //else move forwards toward target with corrective factor for bearing
 
     // //TODO: fill these variables in with actual rover state values
     // Odometry curOdom;
 
-    // //TODO: calculate bearing to target (def exists somewhere in repo)
-    // double bearingToTarget = 0.0;
+    //TODO: fill these variables in with actual rover state values
+    //Odometry curOdom;
 
     // //TODO: calculate dist to target (def alr exists somewhere in repo)
     // double distToTarget = 0.0;
 
-    // double leftPower = 0.0;
-    // double rightPower = 0.0;
+    //TODO: calculate dist to target (def alr exists somewhere in repo)
+    //double distToTarget = 0.0;
 
-    // if (abs(bearingToTarget) > TURN_THRESH){
-    //     //turn to target
-    //     //TODO: implement PID for this as well (alr exists somewhere)
-    //     double turningPower = bearingToTarget;
-    // }
-    // else{
-    //     //move forward to target
-    //     //TODO: implement PID or some sort of function to control forward power based on distance (also def alr exists)
-    //     double forwardPower = distToTarget;
-    //     //TODO: implement PID or some sort of function to control turning correction power (def a util function or smthing alr written)
-    //     double turningPower = bearingToTarget;
+    //double leftPower = 0.0;
+    //double rightPower = 0.0;
 
-    //     leftPower = forwardPower + turningPower;
-    //     rightPower = forwardPower - turningPower;
-    // }
-
-    // //TODO: set left and right powers to the rover (call a function)
-    current_state = DriveState::Drive;
-    while (current_state != DriveState::Done) {
-        switch(current_state){
-            case DriveState::Drive:
-                current_state = executeDrive(path);
-            case DriveState::TurnAroundObs:
-                current_state = executeTurnAroundObs(path);
-            case DriveState::DriveAroundObs:
-                current_state = executeDriveAroundObs(path);
-            case DriveState::Turn:
-                current_state = executeTurn(path);
-        }
+    if (abs(bearingToTarget) > TURN_THRESH){
+        //turn to target
+        //TODO: implement PID for this as well (alr exists somewhere
+        //double turningPower = bearingToTarget;
     }
-    path.clear();
-}
+    else{
+        //move forward to target
+        //TODO: implement PID or some sort of function to control forward power based on distance (also def alr exists)
+        //double forwardPower = distToTarget;
+        //TODO: implement PID or some sort of function to control turning correction power (def a util function or smthing alr written)
+        //double turningPower = bearingToTarget;
 
-DriveState SimplePathFollower::executeDrive(std::vector<Odometry>& path) {
-    const Waypoint& nextWaypoint = path.front();
-    double distance = estimateNoneuclid( gRover->roverStatus().odometry(), nextWaypoint.odom );
-
-    if( isObstacleDetected( gRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( gRover, gRoverConfig ) )
-    {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
-                                                                getOptimalAvoidanceDistance() );
-        return DriveState::TurnAroundObs;
+        // leftPower = forwardPower + turningPower;
+        // rightPower = forwardPower - turningPower;
     }
     DriveStatus driveStatus = gRover->drive( nextWaypoint.odom );
     if( driveStatus == DriveStatus::Arrived )

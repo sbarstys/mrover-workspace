@@ -6,12 +6,13 @@
 #include "rover.hpp"
 #include "utilities.hpp"
 
+
 class SimplePathFollower : public PathFollowerBase{
     public:
-        void followPath(Path& path);
         SimplePathFollower(lcm::LCM& lcmObject);
 
     private:
+    void followPath(Path& path);
         enum class DriveStatus {
             //Temporary drive statuses
             OnCourse = 1,

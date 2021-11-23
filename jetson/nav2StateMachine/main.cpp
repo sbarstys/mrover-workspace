@@ -4,6 +4,7 @@
 #include "rover.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "treeGenerator.hpp"
+#include "pid.hpp"
 using namespace rover_msgs;
 using namespace std;
 using namespace BT;
@@ -140,7 +141,8 @@ int main()
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
     simplePathFollower stateMachine = simplePathFollower(lcmObject);
-    stateMachine.followPath(); //Review this, needs parameter
+
+    stateMachine.followPath(path); 
 
     return 0;
 }

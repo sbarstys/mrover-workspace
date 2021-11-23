@@ -6,8 +6,6 @@
 #include <vector>
 #include "utilities.hpp"
 
-
-
 class PathFollowerBase{
     public:
     
