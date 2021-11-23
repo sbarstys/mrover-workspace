@@ -67,11 +67,15 @@
                             <AtCurrentWaypoint name="atCurrentWaypoint">
                             <Selector>
                                 <Sequence>
-                                    <hasGateTraversalPoints name="hasGateTraversalPoints"><!--TODO may be wrong node-->
+                                    <Inverter>
+                                        <hasGateTraversalPoints name="hasGateTraversalPoints"><!--"no more gate traversal points"-->
+                                    </Inverter>
                                     <verifyGateTraversal name="verifyGateTraversal">
                                 </Sequence>
                                 <Sequence>
-                                    <hasGateTraversalPoints name="hasGateTraversalPoints"><!--TODO may be wrong node-->
+                                    <Inverter>
+                                        <hasGateTraversalPoints name="hasGateTraversalPoints"><!--"no more gate traversal points"-->
+                                    </Inverter>
                                     <PopCourse name="popCourse">
                                 </Sequence>
                             </Selector>
