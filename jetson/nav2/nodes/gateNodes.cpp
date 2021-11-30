@@ -185,9 +185,7 @@ namespace gateNodes{
         } else {
             bool at_desired_angle = gRover->sendGimbalSetpoint(gRover->gimbalAngles()[gRover->gimbalIndex()]);
             if (at_desired_angle){
-
                 if (gRover->gimbalIndex() == (int)gRover->gimbalAngles().size()-1){
-
                     // TODO: done = true
                     return BT::NodeStatus::SUCCESS;
                 }
