@@ -1,5 +1,6 @@
 #include "simplePathFollower.hpp"
-SimplePathFollower::simplePathFollower( lcm::LCM& lcmObject )
+
+SimplePathFollower::SimplePathFollower( lcm::LCM& lcmObject )
     : mRover( nullptr )
     , mLcmObject( lcmObject )
     , mTotalWaypoints( 0 )

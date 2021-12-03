@@ -5,7 +5,7 @@ liblcm = dependency('lcm')
 incdir = include_directories('include')
 nodes = include_directories('nodes')
 follower = include_directories('followers')
-planner = include_directories('planners')
+
 searchPattern = include_directories('searchPatterns')
 
 executable('jetson_nav2', 'main.cpp', 'treeGenerator.cpp',
@@ -58,5 +58,5 @@ executable('jetson_nav2', 'main.cpp', 'treeGenerator.cpp',
             'src/private/tinyxml2.h',
            dependencies : [liblcm],
            link_args : '-ldl',
-           include_directories : [incdir, nodes, follower, planner, searchPattern],
+           include_directories : [incdir, nodes, follower, searchPattern],
            install : true)

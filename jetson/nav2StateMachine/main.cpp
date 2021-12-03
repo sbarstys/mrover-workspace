@@ -1,13 +1,13 @@
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
-#include "behaviortree_cpp_v3/bt_factory.h"
 #include "rover.hpp"
 #include "rover_msgs/Obstacle.hpp"
-#include "treeGenerator.hpp"
+#include "rover_msgs/Odometry.hpp"
+#include "rover_msgs/Destinations.hpp"
 #include "pid.hpp"
+#include "simplePathFollower.hpp"
 using namespace rover_msgs;
 using namespace std;
-using namespace BT;
 
 
 // TODO, we need to create the variables and udpate functions in RoverStatus (preivously in StateMachine)
@@ -140,9 +140,10 @@ int main()
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
-    simplePathFollower stateMachine = simplePathFollower(lcmObject);
+    simplePathFollower stateMachine(lcmObject);
 
-    stateMachine.followPath(path); 
+    stateMachine.followPath(path);
+    //gRover not in rover.hpp look into this 
 
     return 0;
 }

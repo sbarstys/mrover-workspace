@@ -228,4 +228,6 @@ private:
     double mLongMeterInMinutes;
 };
 
+extern Rover* gRover;
+
 #endif // ROVER_HPP

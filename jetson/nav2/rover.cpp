@@ -1,5 +1,5 @@
 #include "rover.hpp"
-
+#include "rover_msgs/Odometry.hpp"
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
 #include <cmath>
@@ -46,12 +46,12 @@ bool Rover::RoverStatus::firstGatePostFound() {
     return mFirstGatePostFound;
 }
 
-PostLocation Rover::RoverStatus::post1(){
-    return post1;
+PostLocation& Rover::RoverStatus::post1(){
+    return mPost1;
 }
 
-PostLocation Rover::RoverStatus::post2(){
-    return post2;
+PostLocation& Rover::RoverStatus::post2(){
+    return mPost2;
 }
 
 vector<Odometry>& Rover::RoverStatus::path(){

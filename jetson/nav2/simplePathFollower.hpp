@@ -5,5 +5,8 @@
 #include <vector>
 
 class SimplePathFollower : PathFollowerBase{
+    
+    SimplePathFollower(lcm::LCM& lcmObject);
+
     void followPath(vector<Odometry>& path);
 };

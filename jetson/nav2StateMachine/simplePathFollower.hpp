@@ -40,11 +40,11 @@ class SimplePathFollower : public PathFollowerBase{
         double mOriginalObstacleDistance;
         // Current state for the DriveState pseudo state machine
         int current_state;
-        DriveState executeDrive();
-        DriveState executeTurn();
-        DriveState executeTurnAroundObs();
-        DriveState executeDriveAroundObs();
-        DriveState executeTurn();
+        DriveState executeDrive(std::vector<Odometry>& path);
+        DriveState executeTurn(std::vector<Odometry>& path);
+        DriveState executeTurnAroundObs(std::vector<Odometry>&  path);
+        DriveState executeDriveAroundObs(std::vector<Odometry>& path);
+        DriveState executeTurn(std::vector<Odometry>& path);
 
         void updateObstacleAngle( double bearing );
         void updateObstacleDistance( double distance );
