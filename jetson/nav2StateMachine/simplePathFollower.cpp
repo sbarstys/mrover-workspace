@@ -1,24 +1,15 @@
 #include "simplePathFollower.hpp"
-SimplePathFollower::simplePathFollower( lcm::LCM& lcmObject )
-    : mRover( nullptr )
-    , mLcmObject( lcmObject )
-    , mTotalWaypoints( 0 )
-    , mCompletedWaypoints( 0 )
-    , mRepeaterDropComplete ( false )
-    , mStateChanged( true )
-{
-    ifstream configFile;
-    string configPath = getenv("MROVER_CONFIG");
-    configPath += "/config_nav/config.json";
-    configFile.open( configPath );
-    string config = "";
-    string setting;
-    while( configFile >> setting )
-    {
-        config += setting;
-    }
-    configFile.close();
-    mRoverConfig.Parse( config.c_str() );
+#include "rover.hpp"
+#include <fstream>
+
+SimplePathFollower::SimplePathFollower()
+    : mCompletedWaypoints( 0 ),
+      mJustDetectedObstacle(false) {}
+
+
+bool SimplePathFollower::isArrived(Waypoint waypoint) {
+    return (current_state == DriveState::Done);
+}
 
 void SimplePathFollower::followPath(std::vector<Odometry>& path){
     // //check if angle to target is greater than x degrees, if so turn to target
@@ -66,42 +57,43 @@ void SimplePathFollower::followPath(std::vector<Odometry>& path){
                 current_state = executeDriveAroundObs(path);
             case DriveState::Turn:
                 current_state = executeTurn(path);
+            case DriveState::Done:
+                path.clear();
         }
     }
-    path.clear();
 }
 
-DriveState SimplePathFollower::executeDrive(std::vector<Odometry>& path) {
-    const Waypoint& nextWaypoint = path.front();
-    double distance = estimateNoneuclid( gRover->roverStatus().odometry(), nextWaypoint.odom );
+SimplePathFollower::DriveState SimplePathFollower::executeDrive(std::vector<Odometry>& path) {
+    const Odometry& nextOdom = path.front();
+    double distance = estimateNoneuclid( gRover->roverStatus().odometry(), nextOdom);
 
-    if( isObstacleDetected( gRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( gRover, gRoverConfig ) )
+    if( isObstacleDetected( gRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( gRover, gRover->RoverConfig() ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
-                                                                getOptimalAvoidanceDistance() );
+        SimplePathFollower::updateObstacleElements( SimplePathFollower::getOptimalAvoidanceAngle(),
+                                                                SimplePathFollower::getOptimalAvoidanceDistance() );
         return DriveState::TurnAroundObs;
     }
-    DriveStatus driveStatus = gRover->drive( nextWaypoint.odom );
+    DriveStatus driveStatus = gRover->drive(nextOdom);
     if( driveStatus == DriveStatus::Arrived )
     {
         gRover->roverStatus().course().pop_front();
         ++mCompletedWaypoints;
-        return NavState::Done;
+        return DriveState::Done;
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        return NavState::Drive;
+        return DriveState::Drive;
     }
-    return NavState::Turn;
+    return DriveState::Turn;
 }
 
-DriveState SimplePathFollower::executeTurn(std::vector<Odometry>& path) {
+SimplePathFollower::DriveState SimplePathFollower::executeTurn(std::vector<Odometry>& path) {
     if( gRover->roverStatus().course().empty() )
     {
         return DriveState::Done;
     }
 
-    Odometry& nextPoint = path.front().odom;
+    Odometry& nextPoint = path.front();
     if( gRover->turn( nextPoint ) )
     {
         return DriveState::Drive;
@@ -109,12 +101,13 @@ DriveState SimplePathFollower::executeTurn(std::vector<Odometry>& path) {
     return DriveState::Turn;
 }
 
-DriveState SimplePathFollower::executeTurnAroundObs(std::vector<Odometry>&  path) {
+SimplePathFollower::DriveState SimplePathFollower::executeTurnAroundObs(std::vector<Odometry>&  path) {
     if( !isObstacleDetected( gRover ) )
     {
         double distanceAroundObs = mOriginalObstacleDistance /
                                    cos( fabs( degreeToRadian( mOriginalObstacleAngle ) ) );
         mObstacleAvoidancePoint = createAvoidancePoint( gRover, distanceAroundObs );
+        mJustDetectedObstacle = false;
         return DriveState::DriveAroundObs;
     }
 
@@ -128,13 +121,13 @@ DriveState SimplePathFollower::executeTurnAroundObs(std::vector<Odometry>&  path
     mJustDetectedObstacle = true;
     mLastObstacleAngle = obstacleBearing;
     gRover->turn( desiredBearing );
-    return gRover->roverStatus().currentState();
+    return current_state;
 }
 
-DriveState SimplePathFollower::executeDriveAroundObs(std::vector<Odometry>& path) {
-    if( isObstacleDetected( gRover )  && isObstacleInThreshold( gRover, gRoverConfig ) )
+SimplePathFollower::DriveState SimplePathFollower::executeDriveAroundObs(std::vector<Odometry>& path) {
+    if( isObstacleDetected( gRover )  && isObstacleInThreshold( gRover, gRover->RoverConfig() ) )
     {
-        if( gRover->roverStatus().currentState() == DriveState::DriveAroundObs )
+        if(current_state == DriveState::DriveAroundObs )
         {
             return DriveState::TurnAroundObs;
         }
@@ -147,7 +140,7 @@ DriveState SimplePathFollower::executeDriveAroundObs(std::vector<Odometry>& path
     }
     if( driveStatus == DriveStatus::OnCourse )
     {
-        return gRover->roverStatus().currentState();
+        return current_state;
     }
     return DriveState::TurnAroundObs;
 
@@ -167,7 +160,7 @@ void SimplePathFollower::updateObstacleElements( double bearing, double distance
 }
 
 bool SimplePathFollower::isWaypointReachable( double distance ) {
-    return isLocationReachable( mRover, mRoverConfig, distance, mRoverConfig["navThresholds"]["waypointDistance"].GetDouble());
+    return isLocationReachable( gRover, gRover->RoverConfig(), distance, gRover->RoverConfig()["navThresholds"]["waypointDistance"].GetDouble());
 }
 
 Odometry SimplePathFollower::createAvoidancePoint( Rover* rover, const double distance ) {
@@ -182,4 +175,14 @@ Odometry SimplePathFollower::createAvoidancePoint( Rover* rover, const double di
     avoidancePoint.longitude_min = ( totalLongitudeMinutes - ( ( (int) totalLongitudeMinutes) / 60 ) * 60 );
 
     return avoidancePoint;
+}
+
+double SimplePathFollower::getOptimalAvoidanceAngle() const
+{
+    return gRover->roverStatus().obstacle().bearing;
+} 
+
+double SimplePathFollower::getOptimalAvoidanceDistance() const
+{
+    return gRover->roverStatus().obstacle().distance + gRover->RoverConfig()[ "navThresholds" ][ "waypointDistance" ].GetDouble();
 }

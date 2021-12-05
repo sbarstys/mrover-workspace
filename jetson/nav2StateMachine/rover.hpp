@@ -3,21 +3,26 @@
 
 #include <lcm/lcm-cpp.hpp>
 #include <queue>
+#include <vector>
 
 #include "rover_msgs/AutonState.hpp"
 #include "rover_msgs/Bearing.hpp"
 #include "rover_msgs/Course.hpp"
-#include "rover_msgs/Obstacle.hpp"
 #include "rover_msgs/Odometry.hpp"
 #include "rover_msgs/RepeaterDrop.hpp"
 #include "rover_msgs/RadioSignalStrength.hpp"
 #include "rover_msgs/TargetList.hpp"
 #include "rover_msgs/Waypoint.hpp"
+#include "rover_msgs/Destinations.hpp"
+#include "rover_msgs/Obstacle.hpp"
 #include "rapidjson/document.h"
 #include "pid.hpp"
+#include "gimbal.hpp"
+
 
 using namespace rover_msgs;
 using namespace std;
+
 
 // This class is the representation of the navigation states.
 enum class NavState
@@ -78,38 +83,35 @@ enum class DriveStatus
     OffCourse
 }; // DriveStatus
 
+struct PostLocation{
+            Odometry location;
+            int32_t id;
+};// PostLocation
+
+
 // This class creates a Rover object which can perform operations that
 // the real rover can perform.
 class Rover
 {
 public:
-    // This class holds all the status informatin of the rover.
+    // This class holds all the status information of the rover.
     class RoverStatus
     {
     public:
+        
+
         RoverStatus();
 
         RoverStatus(
-            NavState navState,
-            AutonState autonStateIn,
             Bearing bearingIn,
-            Course courseIn,
-            Obstacle obstacleIn,
+            deque<Waypoint> courseIn,
             Odometry odometryIn,
             Target targetIn,
             Target target2In,
             RadioSignalStrength signalIn
             );
 
-        NavState& currentState();
-
-        AutonState& autonState();
-
-        Course& course();
-
-        deque<Waypoint>& path();
-
-        Obstacle& obstacle();
+        Destinations& destinations();
 
         Odometry& odometry();
 
@@ -117,30 +119,30 @@ public:
 
         Target& target2();
 
-        RadioSignalStrength& radio();
+        bool firstGatePostFound();
 
-        unsigned getPathTargets();
+        RadioSignalStrength& radio();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
-    private:
-        // The rover's current navigation state.
-        NavState mCurrentState;
+        deque<Waypoint>& course();
 
+        vector<Odometry>& path();
+
+        PostLocation& post1();
+
+        PostLocation& post2();
+
+        AutonState& autonState();
+
+        Obstacle& obstacle();
+
+    private:
         // The rover's current auton state.
         AutonState mAutonState;
 
-        // The rover's overall course.
-        Course mCourse;
-
-        // The rover's current path. The path is initially the same as
-        // the rover's course, however, as waypoints are visited, the
-        // are removed from the path but not the course.
-        deque<Waypoint> mPath;
-
-        // The rover's current obstacle information from computer
-        // vision.
-        Obstacle mObstacle;
+        // The rover's overall macro destinations, made only of destination waypoints
+        Destinations mDestinations;
 
         // The rover's current odometry information.
         Odometry mOdometry;
@@ -154,8 +156,22 @@ public:
         // the rover's current signal strength to the base station
         RadioSignalStrength mSignal;
 
-        // Total targets to seach for in the course
-        unsigned mPathTargets;
+        // internal course including search and gate waypoints
+        deque<Waypoint> mCourse;
+
+        // first gate post found
+        bool mFirstGatePostFound = false;
+
+        //post locations
+        PostLocation mPost1;
+        PostLocation mPost2;
+
+        vector<Odometry> mPath;
+
+        Obstacle mObstacle;
+
+    
+
     };
 
     Rover( const rapidjson::Document& config, lcm::LCM& lcm_in );
@@ -182,9 +198,21 @@ public:
 
     const double longMeterInMinutes() const;
 
+    const vector<double> gimbalAngles() const;
+
+    int& gimbalIndex();
+
     void updateRepeater( RadioSignalStrength& signal);
 
     bool isTimeToDropRepeater();
+
+    Gimbal& gimbal();
+
+    void publishGimbal();
+
+    bool sendGimbalSetpoint(double desired_yaw);
+
+    const rapidjson::Document& RoverConfig();
 
 private:
     /*************************************************************************/
@@ -192,13 +220,11 @@ private:
     /*************************************************************************/
     void publishJoystick( const double forwardBack, const double leftRight, const bool kill );
 
-    bool isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const;
-
     bool isEqual( const Odometry& odometry1, const Odometry& odometry2 ) const;
 
     bool isEqual( const Target& target1, const Target& target2 ) const;
 
-    bool isTurningAroundObstacle( const NavState currentState ) const;
+    bool isTurningAroundObstacle() const;
 
     /*************************************************************************/
     /* Private Member Variables */
@@ -226,6 +252,15 @@ private:
     // The conversion factor from arcminutes to meters. This is based
     // on the rover's current latitude.
     double mLongMeterInMinutes;
+
+    // Gimbal object.
+    Gimbal mGimbal;
+
+    // vector with desired gimbal path
+    const vector<double> mGimbalAngles;
+
+    // keeps track of the index of the desired gimbal angle in the angle vector
+    int mGimbalIndex = 0;
 };
 
 extern Rover* gRover;

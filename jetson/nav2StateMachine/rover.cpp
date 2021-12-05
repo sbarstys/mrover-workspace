@@ -1,47 +1,31 @@
 #include "rover.hpp"
-
+#include "rover_msgs/Odometry.hpp"
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
 #include <cmath>
+#include <vector>
 #include <iostream>
 
 // Constructs a rover status object and initializes the navigation
 // state to off.
 Rover::RoverStatus::RoverStatus()
-    : mCurrentState( NavState::Off )
 {
     mAutonState.is_auton = false;
 } // RoverStatus()
 
-// Gets a reference to the rover's current navigation state.
-NavState& Rover::RoverStatus::currentState()
-{
-    return mCurrentState;
-} // currentState()
 
-// Gets a reference to the rover's current auton state.
-AutonState& Rover::RoverStatus::autonState()
+// Gets a reference to the rover's destinations.
+Destinations& Rover::RoverStatus::destinations()
 {
-    return mAutonState;
-} // autonState()
+    return mDestinations;
+} // destinations()
 
-// Gets a reference to the rover's course.
-Course& Rover::RoverStatus::course()
-{
+
+//Gets a reference to the rovers Course
+deque<Waypoint>& Rover::RoverStatus::course(){
     return mCourse;
-} // course()
+}
 
-// Gets a reference to the rover's path.
-deque<Waypoint>& Rover::RoverStatus::path()
-{
-    return mPath;
-} // path()
-
-// Gets a reference to the rover's current obstacle information.
-Obstacle& Rover::RoverStatus::obstacle()
-{
-    return mObstacle;
-} // obstacle()
 
 // Gets a reference to the rover's current odometry information.
 Odometry& Rover::RoverStatus::odometry()
@@ -59,36 +43,47 @@ Target& Rover::RoverStatus::target2() {
     return mTarget2;
 }
 
+bool Rover::RoverStatus::firstGatePostFound() {
+    return mFirstGatePostFound;
+}
+
+PostLocation& Rover::RoverStatus::post1(){
+    return mPost1;
+}
+
+PostLocation& Rover::RoverStatus::post2(){
+    return mPost2;
+}
+
+vector<Odometry>& Rover::RoverStatus::path(){
+    return mPath;
+}
+
 RadioSignalStrength& Rover::RoverStatus::radio() {
     return mSignal;
 }
 
-unsigned Rover::RoverStatus::getPathTargets()
+const rapidjson::Document& Rover::RoverConfig(){
+    return mRoverConfig;
+}
+
+// Gets a reference to the rover's current obstacle information.
+Obstacle& Rover::RoverStatus::obstacle()
 {
-  return mPathTargets;
-} // getPathTargets()
+    return mObstacle;
+} // obstacle()
+
+AutonState& Rover::RoverStatus::autonState()
+{
+    return mAutonState;
+}
+
 
 // Assignment operator for the rover status object. Does a "deep" copy
 // where necessary.
 Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverStatus )
 {
-    mAutonState = newRoverStatus.autonState();
-    mCourse = newRoverStatus.course();
-    mPathTargets = 0;
-
-    while( !mPath.empty() )
-    {
-        mPath.pop_front();
-    }
-    for( int courseIndex = 0; courseIndex < mCourse.num_waypoints; ++courseIndex )
-    {
-        auto &wp = mCourse.waypoints[ courseIndex ];
-        mPath.push_back( wp );
-        if (wp.search) {
-            ++mPathTargets;
-        }
-    }
-    mObstacle = newRoverStatus.obstacle();
+    mDestinations = newRoverStatus.destinations();
     mOdometry = newRoverStatus.odometry();
     mTarget1 = newRoverStatus.target();
     mTarget2 = newRoverStatus.target2();
@@ -109,9 +104,12 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbalAngles( 0,1)
 {
+    //TODO: init mGimbalAngles from config array (use for loop)
+    
 } // Rover()
-
 
 // Sends a joystick command to drive forward from the current odometry
 // to the destination odometry. This joystick command will also turn
@@ -186,7 +184,7 @@ bool Rover::turn( double bearing )
     bearing = mod(bearing, 360);
     throughZero( bearing, mRoverStatus.odometry().bearing_deg );
     double turningBearingThreshold;
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) )
+    if( isTurningAroundObstacle() )
     {
         turningBearingThreshold = 0;
     }
@@ -200,7 +198,7 @@ bool Rover::turn( double bearing )
     }
     double turningEffort = mBearingPid.update( mRoverStatus.odometry().bearing_deg, bearing );
     double minTurningEffort = mRoverConfig[ "navThresholds" ][ "minTurningEffort" ].GetDouble() * (turningEffort < 0 ? -1 : 1);
-    if( isTurningAroundObstacle( mRoverStatus.currentState() ) && fabs(turningEffort) < minTurningEffort )
+    if( isTurningAroundObstacle() && fabs(turningEffort) < minTurningEffort )
     {
         turningEffort = minTurningEffort;
     }
@@ -232,8 +230,7 @@ bool Rover::updateRover( RoverStatus newRoverStatus )
         }
 
         // If any data has changed, update all data
-        if( !isEqual( mRoverStatus.obstacle(), newRoverStatus.obstacle() ) ||
-            !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
+        if( !isEqual( mRoverStatus.odometry(), newRoverStatus.odometry() ) ||
             !isEqual( mRoverStatus.target(), newRoverStatus.target()) ||
             !isEqual( mRoverStatus.target2(), newRoverStatus.target2()) )
         {
@@ -323,6 +320,24 @@ PidLoop& Rover::bearingPid()
     return mBearingPid;
 } // bearingPid()
 
+// Gets the rover's gimbal object
+Gimbal& Rover::gimbal()
+{
+    return mGimbal;
+}
+
+// tells the gimbal to go to its requested location, DEPRECATED
+void Rover::publishGimbal(){
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+}
+
+// sends the gimbal a desired yaw setpoint, gimbal publishes command
+bool Rover::sendGimbalSetpoint(double desired_yaw){
+    bool r = mGimbal.setDesiredGimbalYaw(desired_yaw);
+    mGimbal.publishControlSignal( mLcmObject, mRoverConfig );
+    return r;
+}
+
 // Publishes a joystick command with the given forwardBack and
 // leftRight efforts.
 void Rover::publishJoystick( const double forwardBack, const double leftRight, const bool kill )
@@ -338,18 +353,6 @@ void Rover::publishJoystick( const double forwardBack, const double leftRight, c
     string joystickChannel = mRoverConfig[ "lcmChannels" ][ "joystickChannel" ].GetString();
     mLcmObject.publish( joystickChannel, &joystick );
 } // publishJoystick()
-
-// Returns true if the two obstacle messages are equal, false
-// otherwise.
-bool Rover::isEqual( const Obstacle& obstacle1, const Obstacle& obstacle2 ) const
-{
-    if( obstacle1.distance == obstacle2.distance &&
-        obstacle1.bearing == obstacle2.bearing )
-    {
-        return true;
-    }
-    return false;
-} // isEqual( Obstacle )
 
 // Returns true if the two odometry messages are equal, false
 // otherwise.
@@ -380,15 +383,23 @@ bool Rover::isEqual( const Target& target1, const Target& target2 ) const
 
 // Return true if the current state is TurnAroundObs or SearchTurnAroundObs,
 // false otherwise.
-bool Rover::isTurningAroundObstacle( const NavState currentState ) const
+bool Rover::isTurningAroundObstacle() const
 {
-    if( currentState == NavState::TurnAroundObs ||
-        currentState == NavState::SearchTurnAroundObs )
-    {
-        return true;
-    }
-    return false;
+ ///TODO FILL THIS IN WITH A MEMBER VARIABLE
+   return false;
 } // isTurningAroundObstacle()
+
+int& Rover::gimbalIndex(){
+    int* temp = new int(0);
+    return *temp;
+}
+
+const vector<double> Rover::gimbalAngles() const{
+    const vector<double> placeHolder;
+    return placeHolder;
+}
+
+Rover* gRover;
 
 /*************************************************************************/
 /* TODOS */

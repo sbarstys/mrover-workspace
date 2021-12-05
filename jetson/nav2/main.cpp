@@ -4,6 +4,7 @@
 #include "rover.hpp"
 #include "rover_msgs/Obstacle.hpp"
 #include "treeGenerator.hpp"
+#include <fstream>
 using namespace rover_msgs;
 using namespace std;
 using namespace BT;

@@ -1,11 +1,9 @@
 #include <iostream>
 #include <lcm/lcm-cpp.hpp>
 #include "rover.hpp"
-#include "rover_msgs/Obstacle.hpp"
-#include "rover_msgs/Odometry.hpp"
-#include "rover_msgs/Destinations.hpp"
-#include "pid.hpp"
 #include "simplePathFollower.hpp"
+#include "rover_msgs/Obstacle.hpp"
+#include <fstream>
 using namespace rover_msgs;
 using namespace std;
 
@@ -126,6 +124,7 @@ int main()
     configFile.close();
     rapidjson::Document roverConfig;
     roverConfig.Parse( config.c_str() );
+    gRover = new Rover( roverConfig, lcmObject );
 
     //initialize lcms
     
@@ -140,10 +139,13 @@ int main()
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
-    simplePathFollower stateMachine(lcmObject);
+    Odometry newPoint = gRover->roverStatus().odometry();
+    newPoint.longitude_min += 1;
+    SimplePathFollower stateMachine;
+    std::vector<Odometry> path;
 
     stateMachine.followPath(path);
-    //gRover not in rover.hpp look into this 
+     
 
     return 0;
 }

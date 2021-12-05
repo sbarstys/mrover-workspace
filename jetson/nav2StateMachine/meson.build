@@ -9,6 +9,7 @@ executable('jetson_nav2StateMachine',  'main.cpp',
             'rover.cpp',
             'pid.cpp', 
             'utilities.cpp',
+            'gimbal.cpp',
            dependencies : [liblcm], 
            link_args : '-ldl',
            install : true)
