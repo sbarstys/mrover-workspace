@@ -9,15 +9,10 @@
 
 class SimplePathFollower : public PathFollowerBase{
     public:
-        SimplePathFollower(lcm::LCM& lcmObject);
+        SimplePathFollower();
 
     private:
-    void followPath(Path& path);
-        enum class DriveStatus {
-            //Temporary drive statuses
-            OnCourse = 1,
-            OffCourse = 2, 
-        }
+        void followPath(std::vector<Odometry>& path);
 
         enum class DriveState {
             //Done State
@@ -32,25 +27,33 @@ class SimplePathFollower : public PathFollowerBase{
 
             //Turn State
             Turn = 30,
-        }
+        };
         Odometry mObstacleAvoidancePoint;
         // Initial angle to go around obstacle upon detection.
         double mOriginalObstacleAngle;
         // Initial angle to go around obstacle upon detection.
         double mOriginalObstacleDistance;
         // Current state for the DriveState pseudo state machine
-        int current_state;
+        DriveState current_state;
         DriveState executeDrive(std::vector<Odometry>& path);
         DriveState executeTurn(std::vector<Odometry>& path);
         DriveState executeTurnAroundObs(std::vector<Odometry>&  path);
         DriveState executeDriveAroundObs(std::vector<Odometry>& path);
-
+        int mCompletedWaypoints;
+        double getOptimalAvoidanceAngle() const;
+        double getOptimalAvoidanceDistance() const;
 
         void updateObstacleAngle( double bearing );
         void updateObstacleDistance( double distance );
         void updateObstacleElements( double bearing, double distance );
         bool isWaypointReachable( double distance );
         Odometry createAvoidancePoint( Rover* rover, const double distance );
+
+        // bool for consecutive obstacle detections
+        bool mJustDetectedObstacle;
+
+        // Last obstacle angle for consecutive angles
+         double mLastObstacleAngle;
 };
 
 

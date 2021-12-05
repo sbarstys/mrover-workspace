@@ -3,6 +3,7 @@
 #include "utilities.hpp"
 #include "rover_msgs/Joystick.hpp"
 #include <cmath>
+#include <vector>
 #include <iostream>
 
 // Constructs a rover status object and initializes the navigation
@@ -388,6 +389,15 @@ bool Rover::isTurningAroundObstacle() const
    return false;
 } // isTurningAroundObstacle()
 
+int& Rover::gimbalIndex(){
+    int* temp = new int(0);
+    return *temp;
+}
+
+const vector<double> Rover::gimbalAngles() const{
+    const vector<double> placeHolder;
+    return placeHolder;
+}
 
 Rover* gRover;
 
