@@ -125,7 +125,6 @@ int main()
     rapidjson::Document roverConfig;
     roverConfig.Parse( config.c_str() );
     gRover = new Rover( roverConfig, lcmObject );
-
     //initialize lcms
     
 
@@ -140,9 +139,10 @@ int main()
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
 
     Odometry newPoint = gRover->roverStatus().odometry();
-    newPoint.longitude_min += 1;
+    newPoint.latitude_min += 0.005;
     SimplePathFollower stateMachine;
     std::vector<Odometry> path;
+    path.push_back(newPoint);
 
     stateMachine.followPath(path);
      

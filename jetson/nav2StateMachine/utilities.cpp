@@ -170,6 +170,7 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
 // Returns true if an obstacle is detected, false otherwise.
 bool isObstacleDetected( Rover* rover )
 {
+    return false;
     return rover->roverStatus().obstacle().distance >= 0;
 } // isObstacleDetected()
 

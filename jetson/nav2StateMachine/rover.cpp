@@ -94,7 +94,7 @@ Rover::RoverStatus& Rover::RoverStatus::operator=( Rover::RoverStatus& newRoverS
 // Constructs a rover object with the given configuration file and lcm
 // object with which to use for communications.
 Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
-    : mRoverConfig( config )
+    : mRoverConfig(config )
     , mLcmObject( lcmObject )
     , mDistancePid( config[ "distancePid" ][ "kP" ].GetDouble(),
                     config[ "distancePid" ][ "kI" ].GetDouble(),
@@ -104,7 +104,7 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbal(0)
     , mGimbalAngles( 0,1)
 {
     //TODO: init mGimbalAngles from config array (use for loop)

@@ -1,6 +1,7 @@
 #include "simplePathFollower.hpp"
 #include "rover.hpp"
 #include <fstream>
+#include <iostream>
 
 SimplePathFollower::SimplePathFollower()
     : mCompletedWaypoints( 0 ),
@@ -48,17 +49,30 @@ void SimplePathFollower::followPath(std::vector<Odometry>& path){
     // //TODO: set left and right powers to the rover (call a function)
     current_state = DriveState::Drive;
     while (current_state != DriveState::Done) {
+        cout << "beginning" << endl;
         switch(current_state){
             case DriveState::Drive:
+                cout << 1 << endl;
                 current_state = executeDrive(path);
+                cout << 1.1 << endl;
+                break;
             case DriveState::TurnAroundObs:
+                cout << 2 << endl;
                 current_state = executeTurnAroundObs(path);
+                cout << 2.1 << endl;
+                return;
+                break;
             case DriveState::DriveAroundObs:
+                cout << 3 << endl;
                 current_state = executeDriveAroundObs(path);
+                break;
             case DriveState::Turn:
+                cout << 4 << endl;
                 current_state = executeTurn(path);
+                break;
             case DriveState::Done:
                 path.clear();
+                break;
         }
     }
 }
@@ -66,7 +80,6 @@ void SimplePathFollower::followPath(std::vector<Odometry>& path){
 SimplePathFollower::DriveState SimplePathFollower::executeDrive(std::vector<Odometry>& path) {
     const Odometry& nextOdom = path.front();
     double distance = estimateNoneuclid( gRover->roverStatus().odometry(), nextOdom);
-
     if( isObstacleDetected( gRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( gRover, gRover->RoverConfig() ) )
     {
         SimplePathFollower::updateObstacleElements( SimplePathFollower::getOptimalAvoidanceAngle(),
