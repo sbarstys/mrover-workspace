@@ -10,7 +10,7 @@
 namespace gateNodes{
 
     BT::NodeStatus isFirstGatePostLocKnown(){
-        if (gRover->roverStatus().firstGatePostFound()){
+        if ( gRover->roverStatus().firstGatePostFound() ){
             return BT::NodeStatus::SUCCESS;
         } else {
             return BT::NodeStatus::FAILURE;
@@ -99,7 +99,7 @@ namespace gateNodes{
     }
 
     BT::NodeStatus isGateTraversalPoint(){
-        if (gRover->roverStatus().course().front().type == "gateTraversal"){
+        if ( gRover->roverStatus().course().front().type == "gateTraversal" ){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -108,7 +108,7 @@ namespace gateNodes{
     BT::NodeStatus hasGateTraversalPoints(){
         // TODO do we have to look at the top point or the next point?
         // this node is the same as isGateTraversalPoint() that may change
-        if (gRover->roverStatus().course().front().type == "gateTraversal"){
+        if ( gRover->roverStatus().course().front().type == "gateTraversal" ){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -116,22 +116,9 @@ namespace gateNodes{
 
     BT::NodeStatus verifyGateTraversal(){
         /*
-        Variables:
-        - gimbal angle vector
-        - index of where we are in gimbal angle vector
-        -
-
-        Case:
-        if succeed:
-        - index of the gimbal angle vector back to the start
-        - regen the gate path
-
-        if fails:
-        if we don't see the targets and are not at the end of the angle vec
-
-        done:
-        - targets are the correct IDs
-        - at end of angle vec
+        if succeed: go to regen gate traversal
+        if fail: go to turn off
+        TODO decide functionality when the gate IDs are not what's expected (regen or not?)
         */
 
         // note: the left and right posts will be flipped relative to the rover
@@ -149,54 +136,34 @@ namespace gateNodes{
 
                 //condition flipped since we are on the opposite side of the gate
                 if (right_angle > left_angle){
-                    //regenTraversal path
-                    // flip posts and regenerate traversal points
+                    // flip posts (went through wrong way)
                     uint8_t temp = gRover->roverStatus().post1().id;
                     gRover->roverStatus().post1().id = gRover->roverStatus().post2().id;
                     gRover->roverStatus().post2().id = temp;
-                    genGateTraversalPathHelper();
                     return BT::NodeStatus::SUCCESS;
                 }
 
             }
             else if ( gRover->roverStatus().target().id == RIGHT_GATE_ID && gRover->roverStatus().target2().id == LEFT_GATE_ID ){
 
-                double left_angle = (gRover->roverStatus().target2().bearing > 180.0) ? gRover->roverStatus().target2().bearing - 360.0: gRover->roverStatus().target2().bearing;
-                double right_angle = (gRover->roverStatus().target().bearing > 180.0) ? gRover->roverStatus().target().bearing - 360.0: gRover->roverStatus().target().bearing;;
+                double left_angle = (gRover->roverStatus().target2().bearing > 180.0)
+                                    ? gRover->roverStatus().target2().bearing - 360.0: gRover->roverStatus().target2().bearing;
+                double right_angle = (gRover->roverStatus().target().bearing > 180.0)
+                                    ? gRover->roverStatus().target().bearing - 360.0: gRover->roverStatus().target().bearing;
 
                 // condition flipped since we are on the opposite side of the gate
                 if (right_angle > left_angle){
                     // regenTraversal path
-                    // flip posts and regenerate traversal points
+                    // flip posts (went through wrong way)
                     uint8_t temp = gRover->roverStatus().post1().id;
                     gRover->roverStatus().post1().id = gRover->roverStatus().post2().id;
                     gRover->roverStatus().post2().id = temp;
-                    genGateTraversalPathHelper();
                     return BT::NodeStatus::SUCCESS;
                 }
             }
-            else {
                 // we see the targets but they are not gate IDs
-                //TODO done = true;
-                //gRover->autonState().
-                return BT::NodeStatus::SUCCESS;
-            }
-
-        } else {
-            bool at_desired_angle = gRover->sendGimbalSetpoint(gRover->gimbalAngles()[gRover->gimbalIndex()]);
-            if (at_desired_angle){
-                if (gRover->gimbalIndex() == (int)gRover->gimbalAngles().size()-1){
-                    // TODO: done = true
-                    return BT::NodeStatus::SUCCESS;
-                }
-                else{
-                    gRover->gimbalIndex()++;
-                    return BT::NodeStatus::FAILURE;
-                }
-            }
+                return BT::NodeStatus::FAILURE;
         }
-        // if not at desired angle return failure (will re-run)
-        return BT::NodeStatus::FAILURE;
     }
 
     BT::NodeStatus genSecondPostSearchPattern(){
@@ -205,13 +172,14 @@ namespace gateNodes{
     }
 
 
-    void registerNodes(BT::BehaviorTreeFactory& factory){
-        factory.registerSimpleAction("isFirstGatePostLocKnown", std::bind(isFirstGatePostLocKnown));
-        factory.registerSimpleAction("genGateTraversalPath", std::bind(genGateTraversalPath));
-        factory.registerSimpleAction("isGateTraversalPoint", std::bind(isGateTraversalPoint));
-        factory.registerSimpleAction("hasGateTraversalPoints", std::bind(hasGateTraversalPoints));
-        factory.registerSimpleAction("verifyGateTraversal", std::bind(verifyGateTraversal));
-        factory.registerSimpleAction("genSecondPostSearchPattern", std::bind(genSecondPostSearchPattern));
+    void registerNodes( BT::BehaviorTreeFactory& factory ){
+
+        factory.registerSimpleAction( "isFirstGatePostLocKnown", std::bind(isFirstGatePostLocKnown) );
+        factory.registerSimpleAction( "genGateTraversalPath", std::bind(genGateTraversalPath) );
+        factory.registerSimpleAction( "isGateTraversalPoint", std::bind(isGateTraversalPoint) );
+        factory.registerSimpleAction( "hasGateTraversalPoints", std::bind(hasGateTraversalPoints) );
+        factory.registerSimpleAction( "verifyGateTraversal", std::bind(verifyGateTraversal) );
+        factory.registerSimpleAction( "genSecondPostSearchPattern", std::bind(genSecondPostSearchPattern) );
 
     }
 

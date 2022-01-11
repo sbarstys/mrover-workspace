@@ -14,29 +14,38 @@
                     <!-- Search Point -->
                     <Sequence>
                         <SearchPoint name="isSearchPoint">
-                        <!--Serch Point Tree-->
+                        <!--Search Point Tree-->
                         <Selector>
                             <!--Know where the gate is?-->
                             <Sequence>
                                 <IsFirstGatePostLocKnown name="isFirstGatePostLocKnown">
                                 <Inverter>
                                     <Sequence>
-                                        <Target name="hasTarget">
-                                        <PopulateSecondTarget name="popualateSecondTarget">
+                                        <Target2 name="hasTarget2">
+                                        <PopulateSecondTarget name="populateSecondTarget">
                                         <GenerateGateTraversalPath name="genGateTraversalPath">
                                     </Sequence>
                                 </Inverter>
-                                <Selector>
+                                <Sequence>
                                     <AtCurrentWaypoint name="atCurrentWaypoint">
-                                    <SpinGimbal name="spinGimbal">
+                                    <!-- gimbal sub-tree for target 2-->
+                                    <Selector>
+                                        <SpinGimbal name="spinGimbal">
+                                        <Sequence>
+                                            <Target2 name="hasTarget2">
+                                            <ResetGimbalIndex name="resetGimbalIndex">
+                                            <PopulateSecondTarget name="populateSecondTarget">
+                                            <GenerateGateTraversalPath name="genGateTraversalPath">
+                                        </Sequence>
+                                    </Selector>
                                     <PopCourse name="popCourse">
-                                </Selector>
+                                </Sequence>
                             </Sequence>
-                            
+
                             <!--Sees a target (for first time)-->
                             <Sequence>
-                                <Target name="hasTarget">
-                                <PopulateFirstTarget name="popualateFirstTarget">
+                                <Target1 name="hasTarget1">
+                                <PopulateFirstTarget name="populateFirstTarget">
                                 <PutTargetAtFrontofCourse name="putTargetAtFrontOfCourse">
                             </Sequence>
 
@@ -44,8 +53,18 @@
                             <Sequence>
                                 <AtCurrentWaypoint name="atCurrentWaypoint">
                                 <!--Repeator Drop Goes here if repeator needs to be added-->
-                                <SpinGimbal name="spinGimbal">
+                                <!-- gimbal sub-tree for target 1 -->
+                                <Selector>
+                                    <SpinGimbal name="spinGimbal">
+                                        <Sequence>
+                                            <Target2 name="hasTarget1">
+                                            <ResetGimbalIndex name="resetGimbalIndex">
+                                            <PopulateFirstTarget name="populateFirstTarget">
+                                            <PutTargetAtFrontofCourse name="putTargetAtFrontOfCourse">
+                                        </Sequence>
+                                </Selector>
                                 <PopCourse name="popCourse">
+
                             </Sequence>
 
                             <!--Repeator Drop Point Detection Goes here-->
@@ -70,12 +89,31 @@
                                     <Inverter>
                                         <hasGateTraversalPoints name="hasGateTraversalPoints"><!--"no more gate traversal points"-->
                                     </Inverter>
-                                    <verifyGateTraversal name="verifyGateTraversal">
+                                    <Sequence> <!-- TODO gimbal here -->
+                                        <Selector>
+                                            <SpinGimbal name="spinGimbal">
+                                            <ForceFailure>
+                                                <TurnOff name="turnOff">
+                                            </ForceFailure>
+                                        </Selector>
+                                        <Sequence>
+                                            <Target1 name="hasTarget1">
+                                            <Target2 name="hasTarget2">
+                                            <Selector>
+                                                <VerifyTraversal name="verifyGateTraversal">
+                                                <ForceFailure>
+                                                    <TurnOff name="turnOff">
+                                                </ForceFailure>
+                                            </Selector>
+                                        </Sequence>
+                                    </Sequence>
+                                    <Selector>
+                                        <GenerateGateTraversalPath name="genGateTraversalPath">
+                                        <TurnOff name="turnOff">
+                                    </Selector>
                                 </Sequence>
                                 <Sequence>
-                                    <Inverter>
-                                        <hasGateTraversalPoints name="hasGateTraversalPoints"><!--"no more gate traversal points"-->
-                                    </Inverter>
+                                    <hasGateTraversalPoints name="hasGateTraversalPoints">
                                     <PopCourse name="popCourse">
                                 </Sequence>
                             </Selector>
@@ -97,7 +135,6 @@
                         </Sequence>
                     </Sequence>
                 </Selector>
-
             </Sequence>
         </Fallback>
     </BehaviorTree>

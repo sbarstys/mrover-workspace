@@ -8,7 +8,7 @@ namespace searchNodes{
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
-        
+
     }
 
     BT::NodeStatus isTargetApproachPoint(){
@@ -18,8 +18,15 @@ namespace searchNodes{
         return BT::NodeStatus::FAILURE;
     }
 
-    BT::NodeStatus hasTarget(){
-        if (gRover->roverStatus().target().distance > 0.0 || gRover->roverStatus().target2().distance > 0.0){
+    BT::NodeStatus hasTarget1(){
+        if (gRover->roverStatus().target().distance > 0.0){
+            return BT::NodeStatus::SUCCESS;
+        }
+        return BT::NodeStatus::FAILURE;
+    }
+
+    BT::NodeStatus hasTarget2(){
+        if (gRover->roverStatus().target2().distance > 0.0){
             return BT::NodeStatus::SUCCESS;
         }
         return BT::NodeStatus::FAILURE;
@@ -52,7 +59,7 @@ namespace searchNodes{
     BT::NodeStatus generateSearchPoints(){
         /*
         at the end of this function the Course will be filled with waypoints centered at the rovers current location describing a search pattern
-        The first pattern is the spiral out, then the lawnmower, then spiral in 
+        The first pattern is the spiral out, then the lawnmower, then spiral in
         */
         generateSpiralOutPattern();
         generateLawnmowerSearchPattern();
@@ -60,11 +67,12 @@ namespace searchNodes{
         return BT::NodeStatus::SUCCESS;
     }
 
-    
+
     void registerNodes(BT::BehaviorTreeFactory& factory){
         factory.registerSimpleCondition("isSearchPoint", std::bind(isSearchPoint));
         factory.registerSimpleCondition("isTargetApproachPoint", std::bind(isTargetApproachPoint));
-        factory.registerSimpleCondition("hasTarget", std::bind(hasTarget));
+        factory.registerSimpleCondition("hasTarget1", std::bind(hasTarget1));
+        factory.registerSimpleCondition("hasTarget2", std::bind(hasTarget2));
         factory.registerSimpleCondition("populateFirstTarget", std::bind(populateFirstTarget));
         factory.registerSimpleCondition("populateSecondTarget", std::bind(populateSecondTarget));
         factory.registerSimpleCondition("putTargetAtFrontOfCourse", std::bind(putTargetAtFrontOfCourse));
