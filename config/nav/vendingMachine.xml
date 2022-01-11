@@ -1,0 +1,26 @@
+ <root main_tree_to_execute = "MainTree" >
+
+     <BehaviorTree ID="MainTree">
+        <ReactiveSequence>
+            <CheckOverallDrinkAvail/>
+            <Sequence name="not_root_sequence">
+                <Sequence name="root_sequence">
+                    <Prompt   drink_port="{drink}"/>
+                    <Fallback name="fallback">
+                        <CheckSpace drink_port="{drink}"/>
+                        <ForceFailure>
+                            <PrintOptions name="print_options"/>
+                        </ForceFailure>
+                        <ForceFailure>
+                            <Prompt drink_port="{drink}"/>
+                        </ForceFailure>
+                        <CheckSpace drink_port="{drink}"/>
+                    </Fallback>
+                    <DispenseDrink   drink_port="{drink}"/>
+                </Sequence>
+            </Sequence>
+        </ReactiveSequence>
+
+     </BehaviorTree>
+
+ </root>
