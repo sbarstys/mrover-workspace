@@ -11,8 +11,11 @@ namespace searchNodes {
     // Check if the top of the course is a target approach point
     BT::NodeStatus isTargetApproachPoint();
 
-    // Check if we see a target
-    BT::NodeStatus hasTarget();
+    // Check if we see target1
+    BT::NodeStatus hasTarget1();
+
+    // Check if we see target2
+    BT::NodeStatus hasTarget2();
 
     // Populate post1 with first target information
     BT::NodeStatus populateFirstTarget();
@@ -26,5 +29,5 @@ namespace searchNodes {
     void registerNodes(BT::BehaviorTreeFactory& factory);
 
     BT::NodeStatus generateSearchPoints();
-    
+
 }

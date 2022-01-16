@@ -125,14 +125,16 @@ int main()
     }
     configFile.close();
     rapidjson::Document roverConfig;
+    
     roverConfig.Parse( config.c_str() );
+    
     gRover = new Rover( roverConfig, lcmObject );
-
+    std::cout << "here 1" << std::endl;
     //initialize lcms
     
 
     LcmHandlers lcmHandlers( &(gRover->roverStatus()) );
-
+    std::cout << "here 1" << std::endl;
     lcmObject.subscribe( "/auton", &LcmHandlers::autonState, &lcmHandlers );
     lcmObject.subscribe( "/course", &LcmHandlers::destinations, &lcmHandlers );
     lcmObject.subscribe( "/obstacle", &LcmHandlers::obstacle, &lcmHandlers );
@@ -140,26 +142,28 @@ int main()
     lcmObject.subscribe( "/radio", &LcmHandlers::radioSignalStrength, &lcmHandlers );
     lcmObject.subscribe( "/rr_drop_complete", &LcmHandlers::repeaterDropComplete, &lcmHandlers );
     lcmObject.subscribe( "/target_list", &LcmHandlers::targetList, &lcmHandlers );
-
+    std::cout << "here 1" << std::endl;
 
 
 
     TreeGenerator treeGen;
-
+    std::cout << "here 1" << std::endl;
     // reads the tree from xml file, registers the nodes (statically), then generates tree object
     auto tree = treeGen.getTree();
-
+    std::cout << "here 1" << std::endl;
     // To "execute" a Tree you need to "tick" it.
     // The tick is propagated to the children based on the logic of the tree.
     // In this case, the entire sequence is executed, because all the children
     // of the Sequence return SUCCESS.s
     BT::NodeStatus status = BT::NodeStatus::SUCCESS;
+    std::cout << "bruh" << std::endl;
     while (status == BT::NodeStatus::SUCCESS && (lcmObject.handle() == 0)){
         //TODO: map processing
+        std::cout << "tick" << std::endl;
         status = tree.tickRoot();
     }
 
-
+    std::cout << "done" << std::endl;
 }
 
 

@@ -104,11 +104,15 @@ Rover::Rover( const rapidjson::Document& config, lcm::LCM& lcmObject )
                    config[ "bearingPid" ][ "kD" ].GetDouble() )
     , mTimeToDropRepeater( false )
     , mLongMeterInMinutes( -1 )
-    , mGimbal( config["gimbal"]["tolerance"].GetDouble())
+    , mGimbal( config["gimbal"]["tolerance"].GetDouble() )
     , mGimbalAngles( 0,1)
 {
     //TODO: init mGimbalAngles from config array (use for loop)
-    
+    //TODO: check this compiles
+    //double angles[] = config["gimbal"]["angles1"].GetArray();
+    //int n = sizeof(angles) / sizeof(angles[0]);
+    //mGimbalAngles(angles, angles + n);
+
 } // Rover()
 
 // Sends a joystick command to drive forward from the current odometry
@@ -215,7 +219,7 @@ void Rover::stop()
 // Checks if the rover should be updated based on what information in
 // the rover's status has changed. Returns true if the rover was
 // updated, false otherwise.
-// TODO: unconditionally update everygthing. When abstracting search class
+// TODO: unconditionally update everything. When abstracting search class
 // we got rid of NavStates TurnToTarget and DriveToTarget (oops) fix this soon :P
 bool Rover::updateRover( RoverStatus newRoverStatus )
 {

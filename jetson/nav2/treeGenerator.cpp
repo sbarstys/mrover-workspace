@@ -5,14 +5,21 @@ using std::ostringstream;
 
 
 void TreeGenerator::readXML(){
-    const std::string path = "vendingMachine.xml";
-    ifstream input_file(path);
-    if (!input_file.is_open()){
-        std::cout << "you're code sucks" << std::endl;
+    ifstream xmlFile;
+    string xmlPath = getenv("MROVER_CONFIG");
+    xmlPath += "/config_nav/vendingMachine.xml";
+    xmlFile.open( xmlPath );
+    if (!xmlFile.is_open()){
+        std::cout << "your code sucks" << std::endl;
     }
-    xml = std::string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
+    xml = std::string((std::istreambuf_iterator<char>(xmlFile)), std::istreambuf_iterator<char>());
     //TODO: use raw strings
     xml = "(" + xml + ")";
+    std::cout << xml << std::endl;
+    xml.erase(std::remove(xml.begin(), xml.end(), '\n'), xml.end());
+    xml.erase(std::remove(xml.begin(), xml.end(), '\t'), xml.end());
+    std::cout << endl;
+    std::cout << xml << std::endl;
 }
 
 void TreeGenerator::registerNodes(){
@@ -40,6 +47,13 @@ void TreeGenerator::registerNodes(){
 BT::Tree TreeGenerator::getTree(){
     readXML();
     registerNodes();
-    auto tree = factory.createTreeFromText(xml);
+    
+    string xmlPath = getenv("MROVER_CONFIG");
+    xmlPath += "/config_nav/masterTree.xml";
+    std::cout << "hello world" << std::endl;
+    auto tree = factory.createTreeFromFile(xmlPath);
+    
+    std::cout << "LOL" << std::endl;
+    //auto tree = factory.createTreeFromText(xml);
     return tree;
 }

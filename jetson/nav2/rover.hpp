@@ -84,8 +84,8 @@ enum class DriveStatus
 }; // DriveStatus
 
 struct PostLocation{
-            Odometry location;
-            int32_t id;
+    Odometry location;
+    int32_t id;
 };// PostLocation
 
 
@@ -98,7 +98,7 @@ public:
     class RoverStatus
     {
     public:
-        
+
 
         RoverStatus();
 
@@ -170,7 +170,7 @@ public:
 
         Obstacle mObstacle;
 
-    
+
 
     };
 

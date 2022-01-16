@@ -15,7 +15,8 @@
 
 	"gimbal":
 	{
-		"angles1": [0,180]
+		"angles1": [0,180],
+		"tolerance": 1.0
 	},
 
 	"joystick":
