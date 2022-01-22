@@ -60,6 +60,12 @@ Target& Rover::RoverStatus::rightTarget()
     return mTarget2;
 } // rightTarget()
 
+bool Rover::RoverStatus::isTargetDetected(){
+
+    return leftTarget().distance >= 0 || rightTarget().distance >= 0;
+
+} // isTargetDetected()
+
 RadioSignalStrength& Rover::RoverStatus::radio() 
 {
     return mSignal;

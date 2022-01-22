@@ -123,6 +123,8 @@ public:
 
         unsigned getPathTargets();
 
+        bool isTargetDetected();
+
         RoverStatus& operator=( RoverStatus& newRoverStatus );
 
     private:
