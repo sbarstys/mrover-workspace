@@ -296,7 +296,8 @@ bool StateMachine::isRoverReady() const
            mRover->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::RepeaterDropWait ||
-           mRover->roverStatus().currentState() == NavState::GateSpinWait;
+           mRover->roverStatus().currentState() == NavState::GateSpinWait ||
+           mRover->roverStatus().currentState() == NavState::GateDriveThrough;
 
 } // isRoverReady()
 
@@ -378,7 +379,7 @@ NavState StateMachine::executeTurn()
 // proceeds to Off. If the rover finishes driving, it either starts
 // searching for a target (dependent the search parameter of
 // the Waypoint) or it turns to the next Waypoint. If the rover
-// detects an obstacle and is within the obstacle distance threshold, 
+// detects an obstacle and is within the obstacle distance threshold,
 // it goes to turn around it. Else the rover keeps driving to the next Waypoint.
 NavState StateMachine::executeDrive()
 {
@@ -502,30 +503,10 @@ double StateMachine::getOptimalAvoidanceAngle() const
     return mRover->roverStatus().obstacle().bearing;
 } // optimalAvoidanceAngle()
 
-// Returns the optimal angle to avoid the detected Target obstacle.
-double StateMachine::getOptimalAvoidanceAngleTarget() const
-{
-    if ( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ){
-        return mRover->roverStatus().leftTarget().bearing;
-    }
-
-    return mRover->roverStatus().rightTarget().bearing;
-} // optimalAvoidanceAngle()
-
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const
 {
     return mRover->roverStatus().obstacle().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
-} // optimalAvoidanceAngle()
-
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceDistanceTarget() const
-{
-    if ( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ){
-        return mRover->roverStatus().leftTarget().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
-    }
-
-    return mRover->roverStatus().rightTarget().distance + mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble();
 } // optimalAvoidanceAngle()
 
 bool StateMachine::isWaypointReachable( double distance )

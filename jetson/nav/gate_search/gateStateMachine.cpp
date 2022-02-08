@@ -4,6 +4,7 @@
 #include "stateMachine.hpp"
 #include "./gate_search/diamondGateSearch.hpp"
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 
 // Constructs a GateStateMachine object with roverStateMachine
@@ -222,12 +223,12 @@ NavState GateStateMachine::executeGateDriveToCentPoint()
     return NavState::GateTurnToCentPoint;
 } // executeGateDriveToCentPoint()
 
-// Turn to the face of the gate posts 
+// Turn to the face of the gate posts
 NavState GateStateMachine::executeGateFace()
 {
     if( mRover->turn( centerPoint2 ) )
     {
-        return NavState::GateTurnToFarPost;
+        return NavState::GateDriveThrough;
     }
     return NavState::GateFace;
 } // executeGateFace()
@@ -235,26 +236,26 @@ NavState GateStateMachine::executeGateFace()
 // Turn to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateTurnToFarPost()
 {
-    if( mRover->roverStatus().rightTarget().distance > 0 ) 
+    if( mRover->roverStatus().rightTarget().distance > 0 )
     {
-        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ) 
+        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance )
         {
             if( mRover->turn( mRover->roverStatus().rightTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) )
             {
                 return NavState::GateDriveToFarPost;
             }
         }
-        else 
+        else
         {
-            if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
+            if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) )
             {
                 return NavState::GateDriveToFarPost;
-            }   
+            }
         }
     }
     else
     {
-        if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) ) 
+        if( mRover->turn( mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg ) )
         {
             return NavState::GateDriveToFarPost;
         }
@@ -265,7 +266,7 @@ NavState GateStateMachine::executeGateTurnToFarPost()
 // Drive to furthest post (or the only post if only one is available)
 NavState GateStateMachine::executeGateDriveToFarPost()
 {
-    // Minor adjustment to gate targeting, due to issue of driving through a 
+    // Minor adjustment to gate targeting, due to issue of driving through a
     // post when driving through the wrong direction
     double gateAdjustmentDist = mRoverConfig[ "gateAdjustment" ][ "adjustmentDistance" ].GetDouble();
 
@@ -273,9 +274,9 @@ NavState GateStateMachine::executeGateDriveToFarPost()
     double distance = mRover->roverStatus().leftTarget().distance - gateAdjustmentDist;
     double bearing = mRover->roverStatus().leftTarget().bearing + mRover->roverStatus().odometry().bearing_deg;
 
-    if( mRover->roverStatus().rightTarget().distance > 0 ) 
+    if( mRover->roverStatus().rightTarget().distance > 0 )
     {
-        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance ) 
+        if( mRover->roverStatus().leftTarget().distance < mRover->roverStatus().rightTarget().distance )
         {
             // Set our variables to drive to target/post 2, which is farther away
             distance = mRover->roverStatus().rightTarget().distance - gateAdjustmentDist;
@@ -299,17 +300,74 @@ NavState GateStateMachine::executeGateDriveToFarPost()
 // Execute turn back to center point for driving through the gate
 NavState GateStateMachine::executeGateTurnToGateCenter()
 {
-    if( mRover->turn( centerPoint2 ) ) 
+    double bearing_cp2 = calcBearing( mRover->roverStatus().odometry(), centerPoint2 );
+    // TODO load offset angle from config
+
+    double offSetAngle = 0;
+
+    if(mRover->roverStatus().getClosestTarget().id == mRover->roverStatus().leftTarget().id){
+        bearing_cp2 -= offSetAngle;
+    } else {
+        bearing_cp2 += offSetAngle;
+    }
+
+    if( mRover->turn( bearing_cp2 ) )
     {
         return NavState::GateDriveThrough;
     }
     return NavState::GateTurnToGateCenter;
+
+    /*
+    if( mRover->turn( centerPoint2 ) )
+    {
+        return NavState::GateDriveThrough;
+    }
+    return NavState::GateTurnToGateCenter;
+    */
 } // executeGateTurnToGateCenter()
 
 // Drive through gate posts
 NavState GateStateMachine::executeGateDriveThrough()
 {
-    DriveStatus driveStatus = mRover->drive( centerPoint2 );
+    // TODO function take in centerPoint1 and centerPoint2 and the rover
+    //
+    //double bearing1 = calcBearing(mRover->roverStatus().odometry(), centerPoint2);
+    Point c1(centerPoint1);
+    Point c2(centerPoint2);
+
+    std::streamsize ss = std::cout.precision();
+    std::cout << std::setprecision(10);
+    std::cout << "c1 long "<< c1.getX() <<"\n";
+    std::cout << "c1 lat " << c1.getY() <<"\n";
+    std::cout << "c2 long "<< c2.getX() <<"\n";
+    std::cout << "c2 lat " << c2.getY() <<"\n";
+    std::cout << std::setprecision(ss);
+
+    std::cout << "distance\n";
+    std::cout << "calcCarror start\n";
+    bool turn;
+    Odometry carrot = calcCarrot( mRover, centerPoint1, centerPoint2, turn );
+    int bearing_to_carrot = calcBearing( mRover->roverStatus().odometry(), carrot );
+    double distance = estimateNoneuclid( mRover->roverStatus().odometry(), centerPoint2 );
+    std::cout << "calcCarror end\n";
+
+    std::cout << "bearing: " << bearing_to_carrot << " dist " << distance << "\n";
+    DriveStatus driveStatus = DriveStatus::OnCourse;
+
+    if (turn) {
+        cout << "Turning to face carrot\n";
+        bool finishedTurning = mRover->turn( carrot );
+        if (finishedTurning) {
+            // Finished turning, now drive to the point
+            // driveStatus = mRover->drive ( distance, bearing_to_carrot, false );
+        }
+    }
+    else {
+        cout << "Driving to carrot.\n";
+        driveStatus = mRover->drive( distance, bearing_to_carrot, false );
+    }
+
+    std::cout << "Drive called\n";
 
     if( driveStatus == DriveStatus::Arrived )
     {
@@ -373,7 +431,7 @@ void GateStateMachine::calcCenterPoint()
     const double absAngle1 = mod( gateAngle + tagToPointAngle, 360 );
     const double absAngle2 = mod( absAngle1 + 180, 360 );
     const double tagToPointDist = sqrt( pow( gateWidth / 2, 2 ) + pow( distFromGate, 2 ) );
-    
+
     // Assuming that CV works well enough that we don't pass through the gate before
     // finding the second post. Thus, centerPoint1 will always be closer.
     centerPoint1 = createOdom( lastKnownRightPost.odom, absAngle1, tagToPointDist, mRover );

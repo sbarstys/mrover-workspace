@@ -1,6 +1,19 @@
 #include "utilities.hpp"
 #include <iostream> // remove
+#include <iomanip>
 #include <cmath>
+#include <vector>
+
+
+ostream& operator<<(ostream& os, const Point &p) {
+    std::streamsize ss = os.precision();
+
+    os << std::setprecision(8);
+    os <<  "Point(" << p.getX() << ", " << p.getY() << ")";
+    os << std::setprecision(ss);
+
+    return os;
+}
 
 // Coverts the input degree (and optional minute) to radians.
 double degreeToRadian( const double degree, const double minute )
@@ -55,6 +68,20 @@ Odometry createOdom( const Odometry & current, double bearing, const double dist
     return newOdom;
 }
 
+// create a new Odometry point at a bearing and distance from a given odometry point
+// Note this uses the absolute bearing not a bearing relative to the rover.
+Odometry createOdom( const Odometry & current, double bearing, const double distance )
+{
+    bearing = degreeToRadian( bearing );
+    double latChange = distance * cos( bearing ) * LAT_METER_IN_MINUTES;
+    // TODO check if this works as expected
+    double lonChange = distance * sin( bearing  ) * ( 60 / ( EARTH_CIRCUM * cos( degreeToRadian(
+                current.latitude_deg, current.latitude_min ) ) / 360 ));
+
+    Odometry newOdom = addMinToDegrees( current, latChange, lonChange );
+    return newOdom;
+}
+
 // Caclulates the bearing between the current odometry and the
 // destination odometry.
 double calcBearing( const Odometry& start, const Odometry& dest )
@@ -86,6 +113,87 @@ double calcBearing( const Odometry& start, const Odometry& dest )
     }
     return radianToDegree( bearing );
 } // calcBearing()
+
+Odometry calcCarrot(Rover* rover, const Odometry& c1, const Odometry& c2, bool& turn){
+    //generate equation for C1C2
+    // Determine dy offset of rover from line
+    //      find equation perpendicular to C1C2 and passing through R1R2
+    //      find intersection point of both lines (I1I2)
+    //      calculate distance between R1R2 and I1I2 (this is dy)
+    // Determine coordinate of P
+    //      Move X distance down the C1C2 line from point I1I2
+
+
+    double thetaC1C2 = calcBearing(c1,c2);
+
+
+    // Create "points" representing the two positions
+    Point c1p(c1);
+    Point c2p(c2);
+    Point roverPoint(rover->roverStatus().odometry());
+
+    // Define a line connecting the two carrots
+    Line targetCarrotLine(c1p, c2p);
+
+    // Line from the rover to the carrot line (perpendicularly)
+    Line beelineToCarrotLine = targetCarrotLine.perpendicularLine(roverPoint);
+
+    // The point where on the line where the rover should turn to (directly)
+    Point intersectionPoint = targetCarrotLine.intersection(beelineToCarrotLine);
+
+    // make intersection point to Odometry
+    int lonDeg = (int)intersectionPoint.getX();
+    double lonMin = (intersectionPoint.getX() - lonDeg) * 60;
+
+    int latDeg = (int)intersectionPoint.getY();
+    double latMin = (intersectionPoint.getY() - latDeg) * 60;
+
+    Odometry intersectPt = {latDeg, latMin, lonDeg, lonMin, 0, 0};
+
+    // TODO find the distance dy from the rover to the intersect of line L
+    double dy = estimateNoneuclid(rover->roverStatus().odometry(), intersectPt);
+    // cout << "rover Odometry latDeg " << rover->roverStatus().odometry().latitude_deg << "\n";
+    // cout << "rover Odometry latMin " << rover->roverStatus().odometry().latitude_min << "\n";
+    // cout << "rover Odometry lonDeg " << rover->roverStatus().odometry().longitude_deg << "\n";
+    // cout << "rover Odometry lonMin " << rover->roverStatus().odometry().longitude_min << "\n";
+
+    // cout << "intersect Odometry latDeg " << intersectPt.latitude_deg << "\n";
+    // cout << "intersect Odometry latMin " << intersectPt.latitude_min << "\n";
+    // cout << "intersect Odometry lonDeg " << intersectPt.longitude_deg << "\n";
+    // cout << "intersect Odometry lonMin " << intersectPt.longitude_min << "\n";
+
+    double threshold = 0.5;
+    double dx;
+
+    // how far carrot is along the line (from the intercept point)
+    // if rover is within the the threshold
+    const double k = 0.52;
+    turn = false;
+
+     // calculate delta x
+    if( dy > threshold ){
+        dx = 0.0;
+        turn = true;
+    }
+    else if( dy == 0.0 ){
+        dx = k;
+    }
+    else {
+        // proportional control
+        //dx = (constantToFind / dy) + k;
+        dx = k;
+    }
+
+    std::cout << "Rover bearing: " << rover->roverStatus().odometry().bearing_deg << "\n";
+    std::cout << "thetaC1C2: " << thetaC1C2 << "\n";
+    std::cout << "dy: " << dy << "\n";
+    std::cout << "dx: " << dx << "\n";
+
+    cout << "Create Odom Called\n";
+    Odometry carrot = createOdom(intersectPt, thetaC1C2, dx);
+    return carrot;
+} // calcCarrot()
+
 
 // // Calculates the modulo of degree with the given modulus.
 double mod( const double degree, const int modulus )
@@ -165,3 +273,81 @@ bool isObstacleInThreshold( Rover* rover, const rapidjson::Document& roverConfig
 {
     return rover->roverStatus().obstacle().distance <= roverConfig["navThresholds"]["obstacleDistanceThreshold"].GetDouble();
 } // isObstacleInThreshold()
+
+
+
+Line::Line(double m_in, double b_in) : m(m_in), b(b_in) { }
+
+double Line::findY(double x) const {
+    // y = mx + b
+    return m * x + b;
+}
+double Line::findX(double y) const {
+    // y = mx + b
+    // y - b = mx
+    // (y - b) / m = x
+    return (y - b) / m;
+}
+
+Point Line::intersection(const Line &other) const {
+    // Find the intersection of two lines
+    // This is the math behind it:
+    // 1. y = m1 x + b1
+    // 2. y = m2 x + b2
+    // 3. m1 x + b1 = m2 x + b2
+    // 4. (m1 - m2) x = b2 - b1
+    // 5. x = (b2 - b1) / (m1 - m2)
+    // 6. y = mx + b
+
+    double x = (other.b - b) / (m - other.m);
+    double y = findY(x);
+    return Point(x, y);
+}
+Line Line::perpendicularLine(const Point &include) const {
+    // Create a line perpendicular to this, including a point specified
+
+    // The slope of a perpendicular line is the negative reciprocal (-1 / m)
+    double m2 = -1.0 / m;
+    // We have a point on the line (provided as an argument), so use it
+    // to find the intercept b.
+    double b2 = include.getY() - (m2 * include.getX());
+    return Line(m2, b2);
+}
+
+
+Point::Point(double x_in, double y_in) : x(x_in), y(y_in) { }
+
+Point::Point(const Odometry &point) :
+    x(point.longitude_deg + point.longitude_min / 60.0),
+    y(point.latitude_deg + point.latitude_min / 60.0) { }
+
+Line::Line(const Point &point1, const Point &point2) :
+    // Create a line using two points
+    // m = rise / run
+    m((point2.getY() - point1.getY()) /
+            (point2.getX() - point1.getX())),
+    // b = y - m*x
+    b(point2.getY() - (m * point2.getX())) { }
+
+
+Odometry Point::toOdometry() {
+    int long_deg = (int)getX();
+    double long_min = (x - long_deg) * 60.0;
+    int lat_deg = (int)getY();
+    double lat_min = (y - lat_deg) * 60.0;
+
+    return Odometry{lat_deg, lat_min, long_deg, long_min, 0, 0};
+}
+
+
+double Point::getX() const {
+    return x;
+}
+
+double Point::getY() const {
+    return y;
+}
+
+double Point::distance(const Point& other) {
+    return (other.x - x) * (other.x - x) + (other.y - y) * (other.y - y);
+}

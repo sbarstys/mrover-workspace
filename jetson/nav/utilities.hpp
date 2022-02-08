@@ -1,4 +1,4 @@
-#ifndef NAV_UTILITES
+    #ifndef NAV_UTILITES
 #define NAV_UTILITES
 
 #include <deque>
@@ -39,5 +39,36 @@ bool isLocationReachable( Rover* rover, const rapidjson::Document& roverConfig, 
 bool isObstacleDetected( Rover* rover );
 
 bool isObstacleInThreshold( Rover* rover, const rapidjson::Document& roverConfig );
+
+Odometry calcCarrot(Rover* rover, const Odometry& c1, const Odometry& c2, bool& turn);
+
+class Point {
+public:
+    Point(double x_in, double y_in);
+    Point(const Odometry &point);
+    double getX() const;
+    double getY() const;
+    Odometry toOdometry();
+    double distance(const Point& other);
+    //friend std::ostream& operator<<(std::ostream& os, const Point &p);
+private:
+    double x;
+    double y;
+};
+
+class Line {
+public:
+    Line(double m_in, double b_in);
+    Line(const Point &point1, const Point &point2);
+    double findY(double x) const;
+    double findX(double y) const;
+    Point intersection(const Line &other) const;
+    Line perpendicularLine(const Point &include) const;
+private:
+    double m;
+    double b;
+};
+
+
 
 #endif // NAV_UTILITES

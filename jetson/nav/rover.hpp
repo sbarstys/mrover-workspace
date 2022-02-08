@@ -20,6 +20,8 @@ using namespace rover_msgs;
 using namespace std;
 
 // This class is the representation of the navigation states.
+// NOTE: if adding a state that should ready the rover,
+//   add to StateMachine::isRoverReady in stateMachine.cpp
 enum class NavState
 {
     // Base States
@@ -126,6 +128,8 @@ public:
         bool isTargetDetected();
 
         RoverStatus& operator=( RoverStatus& newRoverStatus );
+
+        Target& getClosestTarget();
 
     private:
         // The rover's current navigation state.

@@ -28,7 +28,7 @@
 	"navThresholds":
 	{
 		"turningBearing": 20,
-		"drivingBearing": 50,
+		"drivingBearing": 200,
 		"waypointDistance": 2.0,
 		"targetDistance": 1.0,
 		"minTurningEffort": 0.25,

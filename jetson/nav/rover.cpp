@@ -66,6 +66,15 @@ bool Rover::RoverStatus::isTargetDetected(){
 
 } // isTargetDetected()
 
+Target& Rover::RoverStatus::getClosestTarget(){
+
+    if (leftTarget().distance < rightTarget().distance){
+        return leftTarget();
+    }
+    return rightTarget();
+
+} // getClosestTarget()
+
 RadioSignalStrength& Rover::RoverStatus::radio() 
 {
     return mSignal;
@@ -145,6 +154,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
     if( ( !target && distance < mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble() ) ||
         ( target && distance < mRoverConfig[ "navThresholds" ][ "targetDistance" ].GetDouble() ) )
     {
+        cout<<"Rover::drive(" <<target<<") returned status Arrive as a result of a higher distance (" << distance << ") to threshold " << mRoverConfig[ "navThresholds" ][ "waypointDistance" ].GetDouble()<<endl;
         return DriveStatus::Arrived;
     }
 
@@ -159,6 +169,7 @@ DriveStatus Rover::drive( const double distance, const double bearing, const boo
         return DriveStatus::OnCourse;
     }
     cerr << "offcourse\n";
+    cerr << fabs( destinationBearing - mRoverStatus.odometry().bearing_deg ) << " vs " <<  mRoverConfig[ "navThresholds" ][ "drivingBearing" ].GetDouble() << endl;
     return DriveStatus::OffCourse;
 } // drive()
 
