@@ -74,9 +74,9 @@ void StateMachine::updateRepeaterComplete( )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleAngle( double bearing )
+void StateMachine::updateObstacleAngle( double bearing, double rightBearing )
 {
-    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing );
+    mObstacleAvoidanceStateMachine->updateObstacleAngle( bearing, rightBearing );
 }
 
 // Allows outside objects to set the original obstacle angle
@@ -88,9 +88,9 @@ void StateMachine::updateObstacleDistance( double distance )
 
 // Allows outside objects to set the original obstacle angle
 // This will allow the variable to be set before the rover turns
-void StateMachine::updateObstacleElements( double bearing, double distance )
+void StateMachine::updateObstacleElements( double bearing, double rightBearing, double distance )
 {
-    updateObstacleAngle( bearing );
+    updateObstacleAngle( bearing, rightBearing );
     updateObstacleDistance( distance );
 }
 
@@ -152,8 +152,6 @@ void StateMachine::run()
             }
 
             case NavState::SearchFaceNorth:
-            case NavState::SearchSpin:
-            case NavState::SearchSpinWait:
             case NavState::SearchTurn:
             case NavState::SearchDrive:
             case NavState::TurnToTarget:
@@ -187,12 +185,12 @@ void StateMachine::run()
                     }
                     case 1:
                     {
-                        setSearcher(SearchType::LAWNMOWER, mRover, mRoverConfig);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                     case 2:
                     {
-                        setSearcher(SearchType::SPIRALIN, mRover, mRoverConfig);
+                        setSearcher(SearchType::SPIRALOUT, mRover, mRoverConfig);
                         break;
                     }
                     default:
@@ -293,7 +291,6 @@ bool StateMachine::isRoverReady() const
 {
     return mStateChanged || // internal data has changed
            mRover->updateRover( mNewRoverStatus ) || // external data has changed
-           mRover->roverStatus().currentState() == NavState::SearchSpinWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::TurnedToTargetWait || // continue even if no data has changed
            mRover->roverStatus().currentState() == NavState::RepeaterDropWait ||
            mRover->roverStatus().currentState() == NavState::GateSpinWait;
@@ -396,7 +393,8 @@ NavState StateMachine::executeDrive()
 
     if( isObstacleDetected( mRover ) && !isWaypointReachable( distance ) && isObstacleInThreshold( mRover, mRoverConfig ) )
     {
-        mObstacleAvoidanceStateMachine->updateObstacleElements( getOptimalAvoidanceAngle(),
+        mObstacleAvoidanceStateMachine->updateObstacleElements( mRover->roverStatus().obstacle().bearing, 
+                                                                mRover->roverStatus().obstacle().rightBearing,
                                                                 getOptimalAvoidanceDistance() );
         return NavState::TurnAroundObs;
     }
@@ -405,7 +403,7 @@ NavState StateMachine::executeDrive()
     {
         if( nextWaypoint.search )
         {
-            return NavState::SearchSpin;
+            return NavState::SearchTurn;
         }
         mRover->roverStatus().path().pop_front();
         /*if (mRover->roverStatus().currentState() == NavState::RadioRepeaterDrive)
@@ -459,8 +457,6 @@ string StateMachine::stringifyNavState() const
             { NavState::Turn, "Turn" },
             { NavState::Drive, "Drive" },
             { NavState::SearchFaceNorth, "Search Face North" },
-            { NavState::SearchSpin, "Search Spin" },
-            { NavState::SearchSpinWait, "Search Spin Wait" },
             { NavState::ChangeSearchAlg, "Change Search Algorithm" },
             { NavState::SearchTurn, "Search Turn" },
             { NavState::SearchDrive, "Search Drive" },
@@ -490,12 +486,6 @@ string StateMachine::stringifyNavState() const
 
     return navStateNames.at( mRover->roverStatus().currentState() );
 } // stringifyNavState()
-
-// Returns the optimal angle to avoid the detected obstacle.
-double StateMachine::getOptimalAvoidanceAngle() const
-{
-    return mRover->roverStatus().obstacle().bearing;
-} // optimalAvoidanceAngle()
 
 // Returns the optimal angle to avoid the detected obstacle.
 double StateMachine::getOptimalAvoidanceDistance() const
